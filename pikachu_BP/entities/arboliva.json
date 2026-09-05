@@ -114,6 +114,15 @@
       },
       "minecraft:damage_sensor": {
         "triggers": [
+          {
+            "cause": "projectile",
+            "deals_damage": false,
+            "on_damage": {
+              "event": "pk:on_captured",
+              "target": "self",
+              "filters": { "test": "is_family", "subject": "other", "value": "poke_ball" }
+            }
+          },
           { "cause": "magic", "deals_damage": false },
           { "cause": "wither", "deals_damage": false },
           { "cause": "fire", "damage_multiplier": 2 },
@@ -178,10 +187,7 @@
       },
       "pk:on_captured": {
         "sequence": [
-          {
-            "filters": { "test": "has_component", "subject": "self", "value": "minecraft:is_tamed" },
-            "add": { "component_groups": ["pk:caught"] }
-          },
+          { "add": { "component_groups": ["pk:caught"] } },
           {
             "filters": {
               "test": "has_component", "subject": "self",
@@ -195,7 +201,7 @@
         ]
       },
       "pk:break_free": {
-        "add": { "component_groups": ["pk:wild"] }
+        "remove": { "component_groups": ["pk:caught"] }
       },
       "minecraft:entity_transformed": {
         "add": { "component_groups": ["pk:adult", "pk:tame"] }

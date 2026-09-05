@@ -8,6 +8,7 @@
       "is_experimental": false
     },
     "components": {
+      "minecraft:type_family": { "family": ["poke_ball"] },
       "minecraft:collision_box": { "width": 0.25, "height": 0.25 },
       "minecraft:physics": {},
       "minecraft:pushable": { "is_pushable": false, "is_pushable_by_piston": false },
@@ -31,6 +32,12 @@
         "hit_ground_sound": "random.pop",
         "shoot_target": false,
         "on_hit": {
+          "impact_damage": {
+            "damage": 1,
+            "knockback": false,
+            "destroy_on_hit": false,
+            "semi_random_diff_damage": false
+          },
           "definition_event": {
             "affect_target": true,
             "event_trigger": { "event": "pk:on_captured", "target": "self" }

@@ -23,10 +23,25 @@ errs = []
 paths = glob.glob(os.path.join(ROOT, "pikachu_*/**/*.json"), recursive=True)
 docs = {}
 for p in paths:
+    rel = os.path.relpath(p, ROOT)
+    twice = []
+
+    def once(pairs, seen=twice):
+        """Bedrock keeps the last of two identical keys and says nothing."""
+        out = {}
+        for k, v in pairs:
+            if k in out:
+                seen.append(k)
+            out[k] = v
+        return out
+
     try:
-        docs[p] = json.load(open(p))
+        docs[p] = json.load(open(p), object_pairs_hook=once)
     except Exception as e:
-        errs.append(f"{os.path.relpath(p, ROOT)}: {e}")
+        errs.append(f"{rel}: {e}")
+    for k in twice:
+        errs.append(f"{rel}: '{k}' is defined twice in the same object, "
+                    f"so only the second one counts")
 
 geos, anims, ctrls, rends = set(), set(), set(), set()
 for p, d in docs.items():

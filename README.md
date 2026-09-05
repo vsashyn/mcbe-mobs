@@ -131,21 +131,37 @@ A baby comes back grown, and nothing but the owner survives the trip: health,
 sitting, name and age are all lost. Empty balls stack to 16, full ones do not
 stack at all.
 
-None of this needs the scripting API. The catch is a `definition_event` on the
-thrown ball's `on_hit`, which fires `pk:on_captured` on whatever it hit. A mob
-with no such event does nothing with it, which is why a cow shrugs the ball
-off. The event hands the mob a `minecraft:transformation` into the ball that
-lies on the ground, and the full ball transforms the other way on a 0.3 second
-delay. `keep_owner` carries the thrower through both turns, which is what makes
-the Pokémon that comes out belong to the player who threw it.
+None of this needs the scripting API. The ball is in the `poke_ball` family and
+lands one point of damage, and every Pokémon reads that hit off its own
+`minecraft:damage_sensor`, the way a creeper reads a lightning strike. The
+trigger matches on the family, swallows the damage and fires `pk:on_captured`.
+Anything without that trigger just takes the point, so a cow gets a bruise and
+nothing else. The event hands the mob a `minecraft:transformation` into the
+ball that lies on the ground, and the full ball transforms the other way on a
+0.3 second delay. `keep_owner` carries the thrower through both turns, which is
+what makes the Pokémon that comes out belong to the player who threw it.
+
+The hit has to be real damage for a damage sensor to see it, which is the whole
+reason the ball deals a point at all. The thrown ball also carries a
+`definition_event` on its `on_hit` that fires the same event on what it struck.
+Either path alone catches the Pokémon, and both firing at once changes nothing,
+because the event is written so that repeating it lands in the same place.
+
+That event catches first and asks questions second. `pk:on_captured` adds
+`pk:caught` outright, and only then does a wild Pokémon roll to break free,
+which removes the group again well inside the transformation's 0.35 second
+delay. Written the other way round, a filter that failed to evaluate would
+leave the ball doing nothing at all, and a ball that quietly does nothing is
+the hardest thing here to debug.
 
 Covering a new mob means four files that name a species
 (`entities/caught_<mob>.json`, `entities/poke_ball_<mob>_thrown.json`,
 `items/poke_ball_<mob>.json`, `loot_tables/entities/caught_<mob>.json`), an
-entry in `OCCUPANTS` in `gen_textures.py` and in `item_texture.json`, and the
-`pk:caught` group plus the `pk:on_captured`, `pk:break_free` and
-`minecraft:entity_transformed` events on the mob itself. `validate.py` catches
-every one of those you forget except the last.
+entry in `OCCUPANTS` in `gen_textures.py` and in `item_texture.json`, and four
+things on the mob itself: the `pk:caught` group, the `pk:on_captured` and
+`pk:break_free` events, `minecraft:entity_transformed`, and the `poke_ball`
+trigger at the head of its damage sensor. `validate.py` catches every one of
+those you forget except the ones on the mob.
 
 ## Layout
 
@@ -191,6 +207,9 @@ tools/validate.py                     catches broken references before the game 
 tools/bump_version.py                 raises the version in both manifests together
 build.sh                              packs both folders into dist/Pikachu.mcaddon
 ```
+
+`validate.py` also fails on a key that appears twice in the same JSON object,
+which is worth having because Bedrock keeps the second one and says nothing.
 
 `validate.py` walks every entity in the behavior pack rather than a named list,
 so a new mob is checked the moment its files land. It ties an animation to a
