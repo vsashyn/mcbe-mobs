@@ -80,6 +80,10 @@ can edit a JSON file and just leave and rejoin the world.
 Turn on Content Log in Settings, Creator, to see JSON errors as they happen.
 `/give @s sweet_berries 64` speeds up taming.
 
+`/reload` only reloads functions and scripts, so it will not pick up a changed
+texture, model or animation. `/reload all` does reload both packs, at the cost of
+quitting and rejoining the world.
+
 ## Tuning
 
 Spawn rate lives in `spawn_rules/pikachu.json` under `minecraft:weight`, raise
@@ -113,6 +117,35 @@ solved again or the paws will float or sink.
 
 The animation controller blends between standing and bounding over 0.3s, so the
 change of stance reads as a crouch rather than a snap.
+
+## Tooling
+
+`Blockbench MCP` drives the Blockbench desktop app over MCP, which is what the
+`.agents/skills/blockbench-*` skills in this repo expect. Install the plugin in
+Blockbench under File, Plugins, Load Plugin from URL:
+
+```
+https://jasonjgardner.github.io/blockbench-mcp-plugin/mcp.js
+```
+
+It then serves `http://localhost:3000/bb-mcp` (port and endpoint are under
+Settings, General). `.mcp.json` registers it for this project. Among its 94 tools
+are `capture_screenshot` and `capture_app_screenshot`, which matter more than
+they sound: they let a model be looked at rather than reasoned about from
+coordinates.
+
+`Minecraft Creator Tools` is Mojang's own toolset, with a validator whose rules
+are the ones Mojang actually cares about. Needs Node 22+, and the EULA has to be
+accepted once before anything runs:
+
+```
+npm install -g @minecraft/creator-tools
+npx mct eula
+npx mct validate addon -i . -v
+```
+
+It also runs as an MCP server of its own, `npx mct mcp -i .`, working against the
+project folder.
 
 ## Not done yet
 
