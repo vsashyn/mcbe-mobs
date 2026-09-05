@@ -31,9 +31,11 @@ stands on two short roots, tapers through a pale segment that carries the face,
 and finishes in a canopy of two overlapping slabs with a leaf blade sprouting
 off the top. Four branches arch out on the diagonals from just under that
 canopy, each one weeping back down into a wide leaf frond with an olive hanging
-below it. Two more olives dangle from the canopy rim. It stands two blocks tall
-and the canopy spreads about a block and a half across, so it overhangs its own
-hitbox the way a tree should.
+below it. Two more olives dangle from the canopy rim. It stands four blocks
+tall and the canopy spreads about three blocks across, so it reads as a real
+tree in the treeline. Its hitbox stays at one block by two, wrapped around the
+trunk only, so it fits doorways and paths like any other mob while the canopy
+overhangs the way a tree should.
 
 Wild Arboliva stand in bright savanna and forest, alone or in pairs. They are
 slow, they keep clear of monsters, and they follow anyone holding bone meal.
@@ -42,12 +44,12 @@ Feed one bone meal and it has a 30% chance to tame per handful.
 A tamed Arboliva follows its owner, sits and stays when you interact with it,
 heals from bone meal and apples, and gets tougher (44 health, 5 attack damage
 instead of 30 and 3). Two tamed adults fed apples or oak saplings will breed,
-and the baby stands in for Dolliv at 45% scale.
+and the baby stands in for Dolliv at 90% scale, a shade under two blocks tall.
 
 Oil Salvo takes the card at its word. Six globs go out in one burst 0.2 seconds
 apart, 2 damage each and two seconds of slowness where they land, from up to 14
 blocks. The volley has a three block dead zone, so up close Arboliva swings its
-branches instead. Being a two block tall tree, it also shrugs off knockback,
+branches instead. Being a tree, it also shrugs off knockback,
 ignores poison and wither, and takes double from fire and lava. It has no panic
 behavior either, so it stands its ground and burns.
 

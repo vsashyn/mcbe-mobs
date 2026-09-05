@@ -6,11 +6,11 @@
         "identifier": "geometry.arboliva",
         "texture_width": 128,
         "texture_height": 64,
-        "visible_bounds_width": 3,
-        "visible_bounds_height": 3,
+        "visible_bounds_width": 6,
+        "visible_bounds_height": 6,
         "visible_bounds_offset": [
           0,
-          1,
+          2,
           0
         ]
       },
