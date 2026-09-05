@@ -1,0 +1,15 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:thunder_shock",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/pikachu/thunder_shock" },
+      "geometry": { "default": "geometry.thunder_shock" },
+      "animations": { "spark": "animation.thunder_shock.spark" },
+      "scripts": { "animate": ["spark"] },
+      "particle_effects": { "spark": "minecraft:electric_spark_particle" },
+      "render_controllers": ["controller.render.thunder_shock"]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:pikachu",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/pikachu/pikachu" },
+      "geometry": { "default": "geometry.pikachu" },
+      "animations": {
+        "idle": "animation.pikachu.idle",
+        "walk": "animation.pikachu.walk_quadruped",
+        "sit": "animation.pikachu.sit",
+        "look_at_target": "animation.pikachu.look_at_target",
+        "move": "controller.animation.pikachu.move"
+      },
+      "scripts": {
+        "animate": ["look_at_target", "move"]
+      },
+      "render_controllers": ["controller.render.pikachu"],
+      "spawn_egg": { "base_color": "#f2cb30", "overlay_color": "#8c5a1e" }
+    }
+  }
+}

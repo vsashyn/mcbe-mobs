@@ -1,0 +1,39 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Pikachu Resource Pack",
+    "description": "Model, texture and animations for Pikachu.",
+    "uuid": "c7fd2117-f873-4991-8877-0dbaa14d0bc1",
+    "version": [
+      1,
+      0,
+      2
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "a8070ced-3a73-48b2-a735-c2775562ec3d",
+      "version": [
+        1,
+        0,
+        2
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "cc5ced0a-340f-4288-8ca3-746a5ac8fa36",
+      "version": [
+        1,
+        0,
+        2
+      ]
+    }
+  ]
+}

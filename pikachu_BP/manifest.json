@@ -1,0 +1,39 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Pikachu Behavior Pack",
+    "description": "Adds Pikachu: a tameable electric mob that shoots Thunder Shock.",
+    "uuid": "cc5ced0a-340f-4288-8ca3-746a5ac8fa36",
+    "version": [
+      1,
+      0,
+      2
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "8898b455-aa7a-4222-9841-60350fa44292",
+      "version": [
+        1,
+        0,
+        2
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "c7fd2117-f873-4991-8877-0dbaa14d0bc1",
+      "version": [
+        1,
+        0,
+        2
+      ]
+    }
+  ]
+}

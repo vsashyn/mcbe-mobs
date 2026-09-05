@@ -1,0 +1,33 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.pikachu.move": {
+      "initial_state": "idle",
+      "states": {
+        "idle": {
+          "animations": ["idle"],
+          "blend_transition": 0.3,
+          "transitions": [
+            { "sitting": "query.is_sitting" },
+            { "walking": "query.modified_move_speed > 0.05" }
+          ]
+        },
+        "walking": {
+          "animations": ["walk"],
+          "blend_transition": 0.3,
+          "transitions": [
+            { "sitting": "query.is_sitting" },
+            { "idle": "query.modified_move_speed <= 0.05" }
+          ]
+        },
+        "sitting": {
+          "animations": ["sit"],
+          "blend_transition": 0.3,
+          "transitions": [
+            { "idle": "!query.is_sitting" }
+          ]
+        }
+      }
+    }
+  }
+}
