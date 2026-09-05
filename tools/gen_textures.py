@@ -135,6 +135,31 @@ BONE_LO  = (196, 190, 170, A)
 EYE_W    = (247, 247, 242, A)
 
 
+# Squirtle is three materials and nothing else: blue hide, a red-brown shell
+# and the cream plastron between them. The eyes are the only warm pixels on
+# the front of it, so they carry the whole face.
+AQUA     = (108, 186, 212, A)
+AQUA_HI  = (150, 214, 232, A)
+AQUA_LO  = (78, 150, 178, A)
+AQUA_LO2 = (56, 118, 146, A)
+SHELL    = (166, 88, 58, A)
+SHELL_HI = (198, 118, 82, A)
+SHELL_LO = (126, 62, 40, A)
+SHELL_LO2 = (94, 44, 28, A)
+PLATE    = (238, 222, 168, A)
+PLATE_HI = (250, 240, 202, A)
+PLATE_LO = (206, 186, 130, A)
+PLATE_LO2 = (168, 148, 98, A)
+RIM      = (246, 240, 226, A)
+MAROON   = (124, 48, 84, A)
+MAROON_HI = (176, 78, 122, A)
+PUPIL    = (46, 20, 34, A)
+CLAW     = (238, 232, 214, A)
+JET      = (150, 214, 246, A)
+JET_HI   = (232, 250, 255, A)
+JET_LO   = (86, 152, 200, A)
+
+
 def faces(u, v, w, h, d):
     """Minecraft box-UV net: (x, y, w, h) per face."""
     return {
@@ -635,6 +660,164 @@ write_png(os.path.join(ROOT, "pikachu_RP/textures/entity/kleavor/kleavor.png"),
           kle["description"]["texture_height"], tex)
 
 
+# --------------------------------------------------------------- squirtle.png
+# Read off the model, the same way arboliva and kleavor are.
+#
+# The one thing worth knowing here is which edge of a face is the front of the
+# cube, because the shell's cream rim is drawn along it. The box-UV net
+# unwraps right, front, left, back in that order, so on the right face the
+# front-most column is the last one and on the left face it is the first. The
+# top face's last row and the bottom face's first row meet the front the same
+# way.
+SQ_GEO = os.path.join(ROOT, "pikachu_RP/models/entity/squirtle.geo.json")
+squ = next(g for g in json.load(open(SQ_GEO))["minecraft:geometry"]
+           if g["description"]["identifier"] == "geometry.squirtle")
+tex = canvas(squ["description"]["texture_width"],
+             squ["description"]["texture_height"])
+
+
+def hide(u, v, w, h, d, seed):
+    """Blue skin: lit along the top rim of every side, shaded along the bottom."""
+    f = paint_box(tex, u, v, w, h, d, AQUA, top=AQUA_HI, bottom=AQUA_LO2)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, AQUA_HI)
+        rect(tex, x, y + fh - 1, fw, 1, AQUA_LO)
+    return f
+
+
+def limb(u, v, w, h, d, seed):
+    """An arm or a leg. Same hide, plus pale claws on the leading edge and a
+    sole dark enough to read as a foot rather than more of the limb."""
+    f = hide(u, v, w, h, d, seed)
+    x, y, fw, fh = f["bottom"]
+    rect(tex, x, y, fw, fh, AQUA_LO)
+    x, y, fw, fh = f["front"]
+    for c in range(0, fw, 2):
+        put(tex, x + c, y + fh - 1, CLAW)
+    return f
+
+
+def carapace(u, v, w, h, d, seed):
+    """The shell. Four plates split by a seam, a cream rim where it meets the
+    body, and enough speckle to keep the brown from going flat."""
+    f = paint_box(tex, u, v, w, h, d, SHELL, top=SHELL_HI, bottom=SHELL_LO2)
+    for name in f:
+        x, y, fw, fh = f[name]
+        speckle(tex, x, y, fw, fh, SHELL_LO, seed=seed + x, density=0.10)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, SHELL_HI)
+        rect(tex, x, y + fh - 1, fw, 1, SHELL_LO2)
+    x, y, fw, fh = f["back"]                            # the dome, seen from behind
+    rect(tex, x, y, fw, 1, SHELL_LO2)
+    rect(tex, x, y + fh - 1, fw, 1, SHELL_LO2)
+    rect(tex, x + fw // 2, y, 1, fh, SHELL_LO2)         # seam down the middle
+    rect(tex, x, y + fh // 2, fw, 1, SHELL_LO2)         # and across
+    x, y, fw, fh = f["right"]                           # rim, front edge of -x
+    rect(tex, x + fw - 1, y, 1, fh, RIM)
+    x, y, fw, fh = f["left"]                            # rim, front edge of +x
+    rect(tex, x, y, 1, fh, RIM)
+    x, y, fw, fh = f["top"]
+    rect(tex, x, y + fh - 1, fw, 1, RIM)
+    x, y, fw, fh = f["bottom"]
+    rect(tex, x, y, fw, 1, RIM)
+    return f
+
+
+def plastron(u, v, w, h, d, seed):
+    """The belly shield: cream scutes cut into six panels by a hard seam. Its
+    back face is buried inside the shell, so it takes the shell's colour."""
+    f = paint_box(tex, u, v, w, h, d, PLATE, top=PLATE_LO, bottom=PLATE_LO2,
+                  back=SHELL_LO)
+    for side in ("right", "front", "left"):
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, PLATE_HI)
+        rect(tex, x, y + fh - 1, fw, 1, PLATE_LO)
+    x, y, fw, fh = f["front"]
+    rect(tex, x, y, 1, fh, PLATE_LO2)
+    rect(tex, x + fw - 1, y, 1, fh, PLATE_LO2)
+    rect(tex, x, y + fh - 1, fw, 1, PLATE_LO2)
+    rect(tex, x + fw // 2, y, 1, fh, PLATE_LO2)         # centre seam
+    rect(tex, x, y + 1, fw, 1, PLATE_LO2)               # two seams across, so
+    rect(tex, x, y + 3, fw, 1, PLATE_LO2)               # the shield reads as six
+    return f
+
+
+def visage(u, v, w, h, d, seed):
+    """The head. Two tall maroon eyes with a highlight turned outward, a lit
+    brow above them and a shaded jaw under the muzzle."""
+    f = hide(u, v, w, h, d, seed)
+    x, y, fw, fh = f["front"]
+
+    def px(c, r, col):
+        put(tex, x + c, y + r, col)
+
+    for c in range(fw):
+        px(c, 0, AQUA_HI)                               # brow catches the light
+    for c0, glint in ((1, 1), (5, 6)):
+        for c in (c0, c0 + 1):
+            for r in (1, 2, 3):
+                px(c, r, MAROON)
+            px(c, 3, PUPIL)                             # eye darkens at the base
+        px(glint, 1, WHT)
+        px(glint, 2, MAROON_HI)
+    for c in (0, 7):                                    # cheeks fall away
+        px(c, 4, AQUA_LO)
+        px(c, 5, AQUA_LO)
+    rect(tex, x, y + fh - 1, fw, 1, AQUA_LO2)           # jaw, under the muzzle
+    return f
+
+
+def muzzle(u, v, w, h, d, seed):
+    """The snout: nostrils on top, and the flat smile with its corners turned
+    up, which is the whole of Squirtle's expression."""
+    f = paint_box(tex, u, v, w, h, d, AQUA, top=AQUA_HI, bottom=AQUA_LO)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, AQUA_HI)
+    x, y, fw, fh = f["front"]
+    rect(tex, x, y + fh - 1, fw, 1, AQUA_LO2)
+    put(tex, x, y + fh - 2, AQUA_LO2)
+    put(tex, x + fw - 1, y + fh - 2, AQUA_LO2)
+    x, y, fw, fh = f["top"]
+    put(tex, x + 1, y + fh - 1, AQUA_LO2)
+    put(tex, x + fw - 2, y + fh - 1, AQUA_LO2)
+    return f
+
+
+SQ_MATERIAL = (
+    ("shell", carapace),
+    ("body", plastron),
+    ("head", visage),
+    ("snout", muzzle),
+    ("arm", limb),
+    ("leg", limb),
+    ("tail", hide),
+)
+
+for bone in squ["bones"]:
+    paint = next(fn for pre, fn in SQ_MATERIAL if bone["name"].startswith(pre))
+    for i, cube in enumerate(bone.get("cubes", [])):
+        u, v = cube["uv"]
+        w, h, d = (int(n) for n in cube["size"])
+        paint(u, v, w, h, d, u + v + i)
+
+write_png(os.path.join(ROOT,
+          "pikachu_RP/textures/entity/squirtle/squirtle.png"),
+          squ["description"]["texture_width"],
+          squ["description"]["texture_height"], tex)
+
+# ------------------------------------------------------------- water_gun.png
+wg = canvas(16, 16)
+jf = paint_box(wg, 0, 0, 3, 3, 3, JET, top=JET_HI, bottom=JET_LO)
+for name in jf:
+    x, y, w, h = jf[name]
+    put(wg, x + w // 2, y + h // 2, JET_HI)
+write_png(os.path.join(ROOT,
+          "pikachu_RP/textures/entity/squirtle/water_gun.png"), 16, 16, wg)
+
+
 # ------------------------------------------------------------- pack_icon.png
 def pack_icon(path):
     ic = canvas(16, 16)
@@ -703,19 +886,66 @@ BALL_INK = {
     ".": (0, 0, 0, 0),
 }
 
+# The ball is also a mob, lying on the ground where a Pokemon was caught, so
+# the same button colour has to land on the 32x32 sheet that wraps
+# models/entity/poke_ball.geo.json. That net is five stacked cubes rather than
+# anything drawable by rule, so it is a pixel map too.
+BALL_MOB = """
+........xxxxxxxxoooooooo........
+........xxxxxxxxoooooooo........
+........xxxxxxxxoooooooo........
+........xxxxxxxxoooooooo........
+........xxxxxxxxoooooooo........
+........xxxxxxxxoooooooo........
+........xxxxxxxxoooooooo........
+........xxxxxxxxoooooooo........
+xxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx
+=xxxxxx==xxxxxx==xxxxxx==xxxxxx=
++++++++++++@@+++++++++++++++++++
+oooooooooooooooooooooooooooooooo
+................................
+......------xxxxxx..............
+......------xxxxxx..............
+......------xxxxxx..............
+......------xxxxxx..............
+......------xxxxxx..............
+......------xxxxxx..............
+xxxxxxxxxxxxxxxxxxxxxxxx........
+......oooooo******..............
+......oooooo******..............
+......oooooo******..............
+......oooooo******..............
+......oooooo******..............
+......oooooo******..............
+oooooooooooooooooooooooo........
+....----xxxx........oooo****....
+....----xxxx........oooo****....
+....----xxxx........oooo****....
+....----xxxx........oooo****....
+xxxxxxxxxxxxxxxxoooooooooooooooo
+""".strip("\n").splitlines()
+
 OCCUPANTS = {
     "": (232, 232, 234, A),      # empty, the button unlit
     "pikachu": YEL,
     "arboliva": LEAF,
     "kleavor": (208, 112, 58, A),
     "rayquaza": PULSE_HI,
+    "squirtle": AQUA,
 }
 
-for who, button in OCCUPANTS.items():
-    ball = canvas(16, 16)
-    for y, row in enumerate(BALL):
+
+def stamp(rows, size, button):
+    px = canvas(size, size)
+    for y, row in enumerate(rows):
         for x, ch in enumerate(row):
-            ball[y][x] = button if ch == "@" else BALL_INK[ch]
+            px[y][x] = button if ch == "@" else BALL_INK[ch]
+    return px
+
+
+for who, button in OCCUPANTS.items():
     name = "poke_ball_" + who if who else "poke_ball"
     write_png(os.path.join(ROOT, "pikachu_RP/textures/items", name + ".png"),
-              16, 16, ball)
+              16, 16, stamp(BALL, 16, button))
+    write_png(os.path.join(ROOT, "pikachu_RP/textures/entity/poke_ball",
+                           name + ".png"), 32, 32, stamp(BALL_MOB, 32, button))

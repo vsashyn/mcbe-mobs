@@ -1,0 +1,43 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.squirtle.move": {
+      "initial_state": "idle",
+      "states": {
+        "idle": {
+          "animations": ["idle"],
+          "blend_transition": 0.3,
+          "transitions": [
+            { "sitting": "query.is_sitting" },
+            { "swimming": "query.is_in_water" },
+            { "walking": "query.modified_move_speed > 0.05" }
+          ]
+        },
+        "walking": {
+          "animations": ["walk"],
+          "blend_transition": 0.3,
+          "transitions": [
+            { "sitting": "query.is_sitting" },
+            { "swimming": "query.is_in_water" },
+            { "idle": "query.modified_move_speed <= 0.05" }
+          ]
+        },
+        "swimming": {
+          "animations": ["swim"],
+          "blend_transition": 0.4,
+          "transitions": [
+            { "sitting": "query.is_sitting" },
+            { "idle": "!query.is_in_water" }
+          ]
+        },
+        "sitting": {
+          "animations": ["sit"],
+          "blend_transition": 0.4,
+          "transitions": [
+            { "idle": "!query.is_sitting" }
+          ]
+        }
+      }
+    }
+  }
+}

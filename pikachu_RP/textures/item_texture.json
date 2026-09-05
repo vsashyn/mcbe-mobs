@@ -6,6 +6,7 @@
     "pk:poke_ball_pikachu": { "textures": "textures/items/poke_ball_pikachu" },
     "pk:poke_ball_arboliva": { "textures": "textures/items/poke_ball_arboliva" },
     "pk:poke_ball_kleavor": { "textures": "textures/items/poke_ball_kleavor" },
-    "pk:poke_ball_rayquaza": { "textures": "textures/items/poke_ball_rayquaza" }
+    "pk:poke_ball_rayquaza": { "textures": "textures/items/poke_ball_rayquaza" },
+    "pk:poke_ball_squirtle": { "textures": "textures/items/poke_ball_squirtle" }
   }
 }

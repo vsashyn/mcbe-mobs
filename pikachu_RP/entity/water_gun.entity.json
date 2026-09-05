@@ -1,0 +1,14 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:water_gun",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/squirtle/water_gun" },
+      "geometry": { "default": "geometry.water_gun" },
+      "animations": { "jet": "animation.water_gun.jet" },
+      "scripts": { "animate": ["jet"] },
+      "render_controllers": ["controller.render.water_gun"]
+    }
+  }
+}
