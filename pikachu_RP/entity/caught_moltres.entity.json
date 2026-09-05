@@ -1,0 +1,14 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:caught_moltres",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/poke_ball/poke_ball_moltres" },
+      "geometry": { "default": "geometry.poke_ball" },
+      "animations": { "rest": "animation.poke_ball.rest" },
+      "scripts": { "animate": ["rest"] },
+      "render_controllers": ["controller.render.poke_ball"]
+    }
+  }
+}

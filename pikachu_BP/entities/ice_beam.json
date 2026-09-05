@@ -2,40 +2,46 @@
   "format_version": "1.21.0",
   "minecraft:entity": {
     "description": {
-      "identifier": "pk:water_gun_torrent",
+      "identifier": "pk:ice_beam",
       "is_spawnable": false,
       "is_summonable": true,
       "is_experimental": false
     },
     "components": {
-      "minecraft:type_family": { "family": ["water_move", "water_gun_torrent"] },
+      "minecraft:type_family": { "family": ["water_move", "ice_beam"] },
       "minecraft:collision_box": { "width": 0.25, "height": 0.25 },
       "minecraft:physics": {},
       "minecraft:pushable": { "is_pushable": false, "is_pushable_by_piston": false },
       "minecraft:conditional_bandwidth_optimization": {},
       "minecraft:projectile": {
-        "power": 2.0,
-        "gravity": 0.03,
+        "power": 2.1,
+        "gravity": 0.005,
         "inertia": 1.0,
-        "liquid_inertia": 0.99,
+        "liquid_inertia": 1.0,
         "uncertainty_base": 2,
         "uncertainty_multiplier": 1,
         "anchor": 1,
-        "offset": [0, -0.3, 0],
-        "shoot_sound": "random.bow",
-        "hit_sound": "random.splash",
+        "offset": [0, -0.2, 0],
+        "shoot_sound": "cast.spell",
+        "hit_sound": "random.glass",
         "shoot_target": true,
         "should_bounce": false,
         "on_hit": {
           "impact_damage": {
-            "damage": 6,
-            "knockback": true,
+            "damage": 5,
+            "knockback": false,
             "semi_random_diff_damage": false,
             "destroy_on_hit": true
           },
+          "mob_effect": {
+            "effect": "slowness",
+            "duration": 4,
+            "amplifier": 1,
+            "visible": true
+          },
           "particle_on_hit": {
-            "particle_type": "watersplash",
-            "num_particles": 10,
+            "particle_type": "snowballpoof",
+            "num_particles": 8,
             "on_entity_hit": true,
             "on_other_hit": true
           },

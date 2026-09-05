@@ -1,0 +1,24 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:lapras",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/lapras/lapras" },
+      "geometry": { "default": "geometry.lapras" },
+      "animations": {
+        "idle": "animation.lapras.idle",
+        "walk": "animation.lapras.walk",
+        "swim": "animation.lapras.swim",
+        "sit": "animation.lapras.rest",
+        "look_at_target": "animation.lapras.look_at_target",
+        "move": "controller.animation.lapras.move"
+      },
+      "scripts": {
+        "animate": ["look_at_target", "move"]
+      },
+      "render_controllers": ["controller.render.lapras"],
+      "spawn_egg": { "base_color": "#6cacd6", "overlay_color": "#b4b4b8" }
+    }
+  }
+}

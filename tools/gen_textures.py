@@ -3,7 +3,7 @@
 
 Run from anywhere: python3 tools/gen_textures.py
 Writes pikachu.png (64x64), arboliva.png (128x64), thunder_shock.png and
-oil_salvo.png (16x16), and both pack_icon.png.
+oil_salvo.png (16x16), moltres.png (256x128), and both pack_icon.png.
 
 Pikachu's UV slots are written out here and have to stay in step with
 models/entity/pikachu.geo.json by hand. Arboliva's are read straight off
@@ -158,6 +158,31 @@ CLAW     = (238, 232, 214, A)
 JET      = (150, 214, 246, A)
 JET_HI   = (232, 250, 255, A)
 JET_LO   = (86, 152, 200, A)
+
+
+# Lapras is a plesiosaur in three materials: sky-blue hide with darker
+# blotches, a cream throat and belly, and a grey shell of blunt knobs. The
+# eyes are the only warm pixels anywhere on it.
+LAP        = (108, 172, 214, A)
+LAP_HI     = (150, 206, 236, A)
+LAP_LO     = (80, 138, 182, A)
+LAP_LO2    = (56, 106, 150, A)
+LAP_SPOT   = (66, 124, 172, A)
+LAP_CREAM  = (240, 232, 202, A)
+LAP_CREAM_HI = (252, 248, 228, A)
+LAP_CREAM_LO = (206, 194, 158, A)
+LAP_EYE    = (118, 82, 48, A)
+LAP_EYE_LO = (52, 34, 20, A)
+CARA       = (190, 191, 196, A)
+CARA_HI    = (221, 222, 226, A)
+CARA_LO    = (158, 159, 166, A)
+CARA_LO2   = (126, 127, 134, A)
+CARA_EDGE  = (104, 105, 112, A)
+KNOB       = (223, 224, 228, A)
+KNOB_HI    = (243, 244, 247, A)
+ICE        = (170, 226, 248, A)
+ICE_HI     = (238, 252, 255, A)
+ICE_LO     = (104, 172, 218, A)
 
 
 def faces(u, v, w, h, d):
@@ -818,6 +843,404 @@ write_png(os.path.join(ROOT,
           "pikachu_RP/textures/entity/squirtle/water_gun.png"), 16, 16, wg)
 
 
+# ----------------------------------------------------------------- lapras.png
+# Painted off the model, the same way arboliva, kleavor and squirtle are.
+#
+# Lapras is three materials with a hard line between them: blue hide, a cream
+# throat and belly, and the grey shell. The cream is what makes the neck read
+# at distance, because a blue neck against a blue-grey shell against water is
+# otherwise three shades of the same thing.
+#
+# Unlike the other three, the paint functions here are handed the bone name.
+# An ear needs to know which of its side faces is the inner one, and that is
+# not recoverable from a UV slot.
+LA_GEO = os.path.join(ROOT, "pikachu_RP/models/entity/lapras.geo.json")
+lap = next(g for g in json.load(open(LA_GEO))["minecraft:geometry"]
+           if g["description"]["identifier"] == "geometry.lapras")
+tex = canvas(lap["description"]["texture_width"],
+             lap["description"]["texture_height"])
+
+
+def dapple(f, seed, names=SIDES, n=3):
+    """The darker blue blotches. Drawn as 2x2 blocks rather than single
+    pixels, because one pixel of a near colour vanishes at mob scale."""
+    rnd = random.Random(seed)
+    for name in names:
+        x, y, fw, fh = f[name]
+        if fw < 5 or fh < 5:
+            continue
+        for _ in range(n):
+            rect(tex, rnd.randrange(x + 1, x + fw - 2),
+                 rnd.randrange(y + 1, y + fh - 2), 2, 2, LAP_SPOT)
+    return f
+
+
+def pelt(u, v, w, h, d, seed, name="", spots=True):
+    """Blue hide: lit along the top rim of every side, shaded along the
+    bottom, blotched in between."""
+    f = paint_box(tex, u, v, w, h, d, LAP, top=LAP_HI, bottom=LAP_LO2)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, LAP_HI)
+        rect(tex, x, y + fh - 1, fw, 1, LAP_LO)
+    if spots:
+        dapple(f, seed)
+    return f
+
+
+def hull(u, v, w, h, d, seed, name=""):
+    """The torso. Everything above the waterline is buried under the shell, so
+    the only part that has to be right is the cream keel underneath."""
+    f = pelt(u, v, w, h, d, seed, spots=False)
+    x, y, fw, fh = f["bottom"]
+    rect(tex, x, y, fw, fh, LAP_CREAM)
+    rect(tex, x, y, fw, 1, LAP_CREAM_LO)
+    x, y, fw, fh = f["front"]                           # the chest, cream to
+    rect(tex, x + 1, y + 1, fw - 2, fh - 1, LAP_CREAM)  # the shoulder
+    rect(tex, x + 1, y + 1, fw - 2, 1, LAP_CREAM_LO)
+    for side in ("right", "left"):                      # the keel turns up the
+        x, y, fw, fh = f[side]                          # flanks before it stops
+        rect(tex, x, y + fh - 3, fw, 3, LAP_CREAM)
+        rect(tex, x, y + fh - 3, fw, 1, LAP_CREAM_LO)
+    dapple(f, seed, names=("right", "left"), n=3)
+    return f
+
+
+def throat(u, v, w, h, d, seed, name=""):
+    """A neck link. The cream runs up the front and the blue closes over the
+    back, so the seam between them lands on the two side faces."""
+    f = pelt(u, v, w, h, d, seed, spots=False)
+    x, y, fw, fh = f["front"]
+    rect(tex, x, y, fw, fh, LAP_CREAM)
+    rect(tex, x, y, fw, 1, LAP_CREAM_HI)
+    rect(tex, x, y, 1, fh, LAP_CREAM_LO)
+    rect(tex, x + fw - 1, y, 1, fh, LAP_CREAM_LO)
+    x, y, fw, fh = f["right"]                   # -x: the front is the last column
+    rect(tex, x + fw - 1, y, 1, fh, LAP_CREAM_LO)
+    x, y, fw, fh = f["left"]                    # +x: the front is the first
+    rect(tex, x, y, 1, fh, LAP_CREAM_LO)
+    dapple(f, seed, names=("right", "left", "back"), n=2)
+    return f
+
+
+def shellplate(u, v, w, h, d, seed, name=""):
+    """One slab of the dome. Speckled two ways so the grey does not go flat,
+    lipped pale along the top edge and dark along the bottom, which is what
+    turns three stacked boxes into one rounded shell."""
+    f = paint_box(tex, u, v, w, h, d, CARA, top=CARA_HI, bottom=CARA_LO2)
+    for nm in f:
+        x, y, fw, fh = f[nm]
+        speckle(tex, x, y, fw, fh, CARA_LO, seed=seed + x, density=0.16)
+        speckle(tex, x, y, fw, fh, CARA_HI, seed=seed + x + 91, density=0.10)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, CARA_HI)
+        rect(tex, x, y + fh - 1, fw, 1, CARA_EDGE)
+    return f
+
+
+def knobcap(u, v, w, h, d, seed, name=""):
+    """One blunt lump. Lighter than the slab it sits on and shaded underneath,
+    which is the only relief the shell gets that is not a step."""
+    f = paint_box(tex, u, v, w, h, d, KNOB, top=KNOB_HI, bottom=CARA_LO2)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, KNOB_HI)
+        rect(tex, x, y + fh - 1, fw, 1, CARA_LO)
+    return f
+
+
+def fin(u, v, w, h, d, seed, name=""):
+    """A flipper. Blue and blotched on top, cream along the trailing edge and
+    underneath, which is the way it reads in the artwork and the only shading
+    that survives a paddle four units thick."""
+    f = pelt(u, v, w, h, d, seed, spots=False)
+    x, y, fw, fh = f["bottom"]
+    rect(tex, x, y, fw, fh, LAP_CREAM_LO)
+    x, y, fw, fh = f["back"]                            # +z: the trailing edge
+    rect(tex, x, y, fw, fh, LAP_CREAM)
+    rect(tex, x, y, fw, 1, LAP_CREAM_HI)
+    x, y, fw, fh = f["top"]
+    rect(tex, x, y + fh - 1, fw, 1, LAP_CREAM_LO)
+    dapple(f, seed, names=("top",), n=4)
+    return f
+
+
+def mien(u, v, w, h, d, seed, name=""):
+    """The head: a lit brow, a hard lid stroke, two brown eyes and a cream jaw.
+
+    The eyes are the whole face and they are three pixels wide each, pushed
+    out to the corners so three clear pixels of hide bridge them. Everything
+    about that is load-bearing. Brown on blue is close in value, so a narrower
+    eye or a one-pixel bridge renders as a single dark bar across the head,
+    and a bright row anywhere between the brow and the jaw reads as a second
+    bar rather than as a cheek. Each eye carries white on its outer pixel and
+    the pupil on its inner one, which is what turns two dark squares into a
+    pair of eyes looking the same way."""
+    f = pelt(u, v, w, h, d, seed, spots=False)
+    x, y, fw, fh = f["front"]
+
+    def p(c, r, col):
+        put(tex, x + c, y + r, col)
+
+    rect(tex, x, y, fw, 1, LAP_HI)                      # brow catches the light
+    for c0, out in ((0, 0), (fw - 3, 2)):               # out: the outer column
+        for c in range(c0, c0 + 3):
+            p(c, 1, LAP_LO2)                            # the lid stroke
+            p(c, 2, LAP_EYE)
+            p(c, 3, LAP_EYE_LO)
+        p(c0 + out, 2, WHT)                             # sclera, turned outward
+        p(c0 + (2 - out), 2, LAP_EYE_LO)                # pupil, turned inward
+        p(c0 + out, 3, LAP_EYE)
+    for c in (0, fw - 1):                               # cheeks fall away
+        p(c, 4, LAP_LO)
+    rect(tex, x + 2, y + fh - 1, fw - 4, 1, LAP_CREAM)  # the jaw, one row only
+    x, y, fw, fh = f["bottom"]
+    rect(tex, x, y, fw, fh, LAP_CREAM_LO)
+    dapple(f, seed, names=("right", "left"), n=2)
+    return f
+
+
+def muzzle(u, v, w, h, d, seed, name=""):
+    """The snout: nostrils on top and the long flat smile, cream underneath so
+    it carries on from the chin."""
+    f = pelt(u, v, w, h, d, seed, spots=False)
+    x, y, fw, fh = f["bottom"]
+    rect(tex, x, y, fw, fh, LAP_CREAM)
+    x, y, fw, fh = f["front"]
+    rect(tex, x, y + fh - 1, fw, 1, LAP_CREAM)
+    rect(tex, x + 1, y + fh - 2, fw - 2, 1, LAP_LO2)    # the mouth line
+    x, y, fw, fh = f["top"]
+    put(tex, x + 1, y + fh - 1, LAP_LO2)
+    put(tex, x + fw - 2, y + fh - 1, LAP_LO2)
+    for side in ("right", "left"):
+        x, y, fw, fh = f[side]
+        rect(tex, x, y + fh - 1, fw, 1, LAP_CREAM)
+    return f
+
+
+def spike(u, v, w, h, d, seed, name=""):
+    """The forehead horn. Cream, so it reads against the blue skull."""
+    return paint_box(tex, u, v, w, h, d, LAP_CREAM,
+                     top=LAP_CREAM_HI, bottom=LAP_CREAM_LO)
+
+
+def curl(u, v, w, h, d, seed, name=""):
+    """One link of an ear. Blue outside, cream on the inner face, which is
+    what makes the coil read as a coil and not a blue stub. The inner face of
+    the left ear is its -x side and of the right ear its +x, and the net calls
+    those 'right' and 'left' respectively."""
+    f = pelt(u, v, w, h, d, seed, spots=False)
+    x, y, fw, fh = f["right" if "left" in name else "left"]
+    rect(tex, x, y, fw, fh, LAP_CREAM_LO)
+    rect(tex, x, y, fw, 1, LAP_CREAM_HI)
+    return f
+
+
+LA_MATERIAL = (
+    ("shell", shellplate),
+    ("knobs", knobcap),
+    ("body", hull),
+    ("neck", throat),
+    ("head", mien),
+    ("snout", muzzle),
+    ("horn", spike),
+    ("ear", curl),
+    ("flipper", fin),
+    ("tail", pelt),
+)
+
+for bone in lap["bones"]:
+    paint = next(fn for pre, fn in LA_MATERIAL if bone["name"].startswith(pre))
+    for i, cube in enumerate(bone.get("cubes", [])):
+        u, v = cube["uv"]
+        w, h, d = (int(n) for n in cube["size"])
+        paint(u, v, w, h, d, u + v + i, bone["name"])
+
+write_png(os.path.join(ROOT, "pikachu_RP/textures/entity/lapras/lapras.png"),
+          lap["description"]["texture_width"],
+          lap["description"]["texture_height"], tex)
+
+# -------------------------------------------------------------- ice_beam.png
+# The shard is long rather than round, so unlike the other three projectiles
+# its sheet is 32x16 and its net is not square.
+ib = canvas(32, 16)
+sf = paint_box(ib, 0, 0, 3, 3, 7, ICE, top=ICE_HI, bottom=ICE_LO)
+for name in sf:
+    x, y, w, h = sf[name]
+    rect(ib, x, y, w, 1, ICE_HI)
+    rect(ib, x, y + h - 1, w, 1, ICE_LO)
+for name in ("right", "left"):                      # a bright core down the shard
+    x, y, w, h = sf[name]
+    rect(ib, x + 1, y + h // 2, w - 2, 1, ICE_HI)
+write_png(os.path.join(ROOT,
+          "pikachu_RP/textures/entity/lapras/ice_beam.png"), 32, 16, ib)
+
+
+# ---------------------------------------------------------------- moltres.png
+# Galarian Moltres is two materials and nothing else: a body that is almost
+# black with scarlet cutting through it, and a flame that is black at the root
+# and magenta at the tip. Slots are read back out of the geometry that owns
+# them, the same way Rayquaza's are, because 44 cubes is more UV than a
+# hand-written table stays honest about.
+M_INK      = (26, 24, 30, A)
+M_INK_HI   = (54, 50, 62, A)
+M_INK_LO   = (15, 14, 18, A)
+M_CRIM     = (206, 32, 74, A)
+M_CRIM_HI  = (238, 70, 112, A)
+M_CRIM_LO  = (148, 18, 52, A)
+M_PINK     = (226, 74, 142, A)
+M_PINK_HI  = (250, 162, 202, A)
+M_PINK_LO  = (172, 34, 98, A)
+M_EYE      = (96, 216, 246, A)
+M_EYE_LO   = (34, 130, 178, A)
+M_TALON    = (18, 17, 22, A)
+
+MOL_GEO = json.load(open(os.path.join(
+    ROOT, "pikachu_RP/models/entity/moltres.geo.json")))
+MOL_BONES = {
+    b["name"]: [(c["uv"][0], c["uv"][1], *(int(n) for n in c["size"]))
+                for c in b.get("cubes", [])]
+    for g in MOL_GEO["minecraft:geometry"]
+    if g["description"]["identifier"] == "geometry.moltres"
+    for b in g["bones"]
+}
+
+tex = canvas(256, 128)
+
+
+def mol_mix(a, b, t):
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3)) + (A,)
+
+
+def mol_ink(bone, i=0, base=M_INK, top=M_INK_HI, bottom=M_INK_LO):
+    """One cube of the body, in the near-black the whole bird is under."""
+    u, v, w, h, d = MOL_BONES[bone][i]
+    return paint_box(tex, u, v, w, h, d, base, top=top, bottom=bottom)
+
+
+def mol_red(bone, i=0, base=M_CRIM, top=M_CRIM_HI, bottom=M_CRIM_LO):
+    u, v, w, h, d = MOL_BONES[bone][i]
+    return paint_box(tex, u, v, w, h, d, base, top=top, bottom=bottom)
+
+
+def mol_flame(bone, i=0, seed=0):
+    """A flame: magenta at the tip, charcoal at the root, ragged between.
+
+    The dark climbs each column of the face on a random walk rather than a
+    straight line, so the boundary comes out as tongues instead of a horizon.
+    Row 0 of an upright face is the top of the cube, which is the end of the
+    flame furthest from the bird, so the ramp runs hot to cold down the rows.
+    """
+    u, v, w, h, d = MOL_BONES[bone][i]
+    f = paint_box(tex, u, v, w, h, d, M_PINK, top=M_PINK_HI, bottom=M_INK)
+    rnd = random.Random(seed)
+    for name in ("front", "back", "left", "right"):
+        x, y, fw, fh = f[name]
+        for r in range(fh):
+            rect(tex, x, y + r, fw, 1,
+                 mol_mix(M_PINK_HI, M_PINK_LO, r / max(fh - 1, 1)))
+        lvl = fh // 2
+        for c in range(fw):
+            lvl = max(1, min(fh - 1, lvl + rnd.choice((-2, -1, 0, 1, 2))))
+            put(tex, x + c, y + lvl - 1, M_PINK_HI)     # the lit edge of the
+            for r in range(lvl, fh):                    # dark, then the dark
+                put(tex, x + c, y + r, M_INK if r > lvl else M_INK_HI)
+    return f
+
+
+def mol_edge(f, faces, col):
+    """Runs a line along the top of a face, which is the crimson piping the
+    artwork puts down every seam where black meets black."""
+    for name in faces:
+        x, y, fw, fh = f[name]
+        rect(tex, x, y, fw, 1, col)
+
+
+# body. The chest carries a crimson keel down the middle of its underside and
+# the same piping along both flanks, which is all the colour the trunk has.
+chest = mol_ink("body", 0)
+for side in ("left", "right"):
+    x, y, fw, fh = chest[side]
+    rect(tex, x, y + fh - 2, fw, 1, M_CRIM_LO)
+x, y, fw, fh = chest["bottom"]
+rect(tex, x + (fw - 2) // 2, y, 2, fh, M_CRIM_LO)
+rump = mol_ink("body", 1)
+mol_edge(rump, ("left", "right"), M_INK_HI)
+
+for name, *_ in (("neck1",), ("neck2",), ("neck3",)):
+    nf = mol_ink(name)
+    for side in ("left", "right"):
+        x, y, fw, fh = nf[side]
+        rect(tex, x, y + fh - 1, fw, 1, M_CRIM_LO)      # the throat line
+
+# head. The cap is crimson, the beak is crimson with a dark ridge, and the eye
+# is the one bright thing on the whole model.
+skull = mol_ink("head", 0)
+x, y, fw, fh = skull["front"]
+rect(tex, x, y, fw, 2, M_CRIM)                          # brow band
+mol_red("head", 1, base=M_CRIM_HI)
+
+bk = mol_red("beak", 0)
+for name in ("top", "left", "right"):
+    x, y, fw, fh = bk[name]
+    rect(tex, x, y, fw if name == "top" else 1, fh, M_CRIM_LO)
+x, y, fw, fh = bk["bottom"]
+rect(tex, x, y, fw, fh, M_INK_LO)                       # inside the mouth
+mol_red("beak", 1, base=M_CRIM_LO, top=M_CRIM, bottom=M_INK_LO)   # the hook
+
+jw = mol_red("jaw", base=M_CRIM_LO, top=M_INK_LO)
+mol_edge(jw, ("left", "right"), M_CRIM)
+
+for side in ("left", "right"):
+    ef = mol_ink(f"eye_{side}", base=M_INK_LO, top=M_INK_LO, bottom=M_INK_LO)
+    x, y, fw, fh = ef[side]
+    rect(tex, x, y, fw, fh, M_EYE)
+    rect(tex, x, y + fh - 1, fw, 1, M_EYE_LO)
+    put(tex, x + fw - 1, y, WHT)                        # catchlight
+
+# every flame on the bird, seeded off its own name so no two burn alike
+for n, bname in enumerate(sorted(MOL_BONES)):
+    if bname.startswith(("crest", "plume_", "flame_", "tailflame_")):
+        mol_flame(bname, seed=1700 + n)
+
+# wings and tail are black struts, lit along the leading edge
+for seg in ("wing", "wingmid", "wingtip"):
+    for side in ("left", "right"):
+        wf = mol_ink(f"{seg}_{side}")
+        mol_edge(wf, ("front",), M_CRIM_LO)
+        x, y, fw, fh = wf["top"]
+        rect(tex, x, y, fw, 1, M_INK_HI)
+for name in ("tail1", "tail2"):
+    tf2 = mol_ink(name)
+    for side in ("left", "right"):
+        x, y, fw, fh = tf2[side]
+        rect(tex, x, y, fw, 1, M_CRIM_LO)
+
+# legs. Scarlet down to the toes, then black talons.
+for side in ("left", "right"):
+    mol_red(f"thigh_{side}")
+    mol_red(f"shin_{side}", base=M_CRIM, top=M_CRIM_HI, bottom=M_CRIM_LO)
+    ff = mol_red(f"foot_{side}", 0, base=M_CRIM_LO, top=M_CRIM)
+    mol_edge(ff, ("front",), M_TALON)
+    for i in (1, 2):
+        mol_ink(f"foot_{side}", i, base=M_TALON, top=M_INK_HI, bottom=M_TALON)
+
+write_png(os.path.join(ROOT,
+          "pikachu_RP/textures/entity/moltres/moltres.png"), 256, 128, tex)
+
+# ------------------------------------------------------------ fiery_wrath.png
+# The aura it throws: a magenta shell with a black heart, because the move is
+# a Dark-type one wearing fire.
+fw_tex = canvas(16, 16)
+wf = paint_box(fw_tex, 0, 0, 4, 4, 4, M_PINK, top=M_PINK_HI, bottom=M_PINK_LO)
+for name in wf:
+    x, y, w, h = wf[name]
+    rect(fw_tex, x + 1, y + 1, w - 2, h - 2, M_INK)
+    put(fw_tex, x + w // 2, y + h // 2, M_PINK_HI)
+write_png(os.path.join(ROOT,
+          "pikachu_RP/textures/entity/moltres/fiery_wrath.png"), 16, 16, fw_tex)
+
 # ------------------------------------------------------------- pack_icon.png
 def pack_icon(path):
     ic = canvas(16, 16)
@@ -932,6 +1355,8 @@ OCCUPANTS = {
     "kleavor": (208, 112, 58, A),
     "rayquaza": PULSE_HI,
     "squirtle": AQUA,
+    "moltres": M_PINK,
+    "lapras": LAP,
 }
 
 

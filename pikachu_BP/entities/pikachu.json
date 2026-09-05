@@ -121,7 +121,12 @@
             "on_damage": {
               "event": "pk:on_captured",
               "target": "self",
-              "filters": { "test": "is_family", "subject": "other", "value": "poke_ball" }
+              "filters": {
+                "any_of": [
+                  { "test": "is_family", "subject": "damager", "value": "poke_ball" },
+                  { "test": "is_family", "subject": "other", "value": "poke_ball" }
+                ]
+              }
             }
           },
           { "cause": "lightning", "deals_damage": false }
@@ -176,19 +181,7 @@
         "add": { "component_groups": ["pk:tame"] }
       },
       "pk:on_captured": {
-        "sequence": [
-          { "add": { "component_groups": ["pk:caught"] } },
-          {
-            "filters": {
-              "test": "has_component", "subject": "self",
-              "operator": "!=", "value": "minecraft:is_tamed"
-            },
-            "randomize": [
-              { "weight": 3, "add": { "component_groups": ["pk:caught"] } },
-              { "weight": 2, "trigger": "pk:break_free" }
-            ]
-          }
-        ]
+        "add": { "component_groups": ["pk:caught"] }
       },
       "pk:break_free": {
         "remove": { "component_groups": ["pk:caught"] }

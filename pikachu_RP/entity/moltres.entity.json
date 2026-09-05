@@ -1,0 +1,23 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:moltres",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/moltres/moltres" },
+      "geometry": { "default": "geometry.moltres" },
+      "animations": {
+        "hover": "animation.moltres.hover",
+        "glide": "animation.moltres.glide",
+        "hunt": "animation.moltres.hunt",
+        "look_at_target": "animation.moltres.look_at_target",
+        "move": "controller.animation.moltres.move"
+      },
+      "scripts": {
+        "animate": ["look_at_target", "move"]
+      },
+      "render_controllers": ["controller.render.moltres"],
+      "spawn_egg": { "base_color": "#221f26", "overlay_color": "#e24a8e" }
+    }
+  }
+}

@@ -2,11 +2,29 @@
   "resource_pack_name": "pokemon",
   "texture_name": "atlas.items",
   "texture_data": {
-    "pk:poke_ball": { "textures": "textures/items/poke_ball" },
-    "pk:poke_ball_pikachu": { "textures": "textures/items/poke_ball_pikachu" },
-    "pk:poke_ball_arboliva": { "textures": "textures/items/poke_ball_arboliva" },
-    "pk:poke_ball_kleavor": { "textures": "textures/items/poke_ball_kleavor" },
-    "pk:poke_ball_rayquaza": { "textures": "textures/items/poke_ball_rayquaza" },
-    "pk:poke_ball_squirtle": { "textures": "textures/items/poke_ball_squirtle" }
+    "pk:poke_ball": {
+      "textures": "textures/items/poke_ball"
+    },
+    "pk:poke_ball_pikachu": {
+      "textures": "textures/items/poke_ball_pikachu"
+    },
+    "pk:poke_ball_arboliva": {
+      "textures": "textures/items/poke_ball_arboliva"
+    },
+    "pk:poke_ball_kleavor": {
+      "textures": "textures/items/poke_ball_kleavor"
+    },
+    "pk:poke_ball_rayquaza": {
+      "textures": "textures/items/poke_ball_rayquaza"
+    },
+    "pk:poke_ball_squirtle": {
+      "textures": "textures/items/poke_ball_squirtle"
+    },
+    "pk:poke_ball_lapras": {
+      "textures": "textures/items/poke_ball_lapras"
+    },
+    "pk:poke_ball_moltres": {
+      "textures": "textures/items/poke_ball_moltres"
+    }
   }
 }

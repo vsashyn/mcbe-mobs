@@ -1,0 +1,14 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:ice_beam",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/lapras/ice_beam" },
+      "geometry": { "default": "geometry.ice_beam" },
+      "animations": { "shard": "animation.ice_beam.shard" },
+      "scripts": { "animate": ["shard"] },
+      "render_controllers": ["controller.render.ice_beam"]
+    }
+  }
+}

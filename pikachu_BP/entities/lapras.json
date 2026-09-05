@@ -2,7 +2,7 @@
   "format_version": "1.21.0",
   "minecraft:entity": {
     "description": {
-      "identifier": "pk:squirtle",
+      "identifier": "pk:lapras",
       "is_spawnable": true,
       "is_summonable": true,
       "is_experimental": false
@@ -11,10 +11,10 @@
     "component_groups": {
       "pk:baby": {
         "minecraft:is_baby": {},
-        "minecraft:scale": { "value": 0.55 },
+        "minecraft:scale": { "value": 0.5 },
         "minecraft:ageable": {
-          "duration": 1200,
-          "feed_items": ["cod", "salmon"],
+          "duration": 2400,
+          "feed_items": ["kelp", "cooked_cod"],
           "grow_up": { "event": "minecraft:ageable_grow_up", "target": "self" }
         }
       },
@@ -27,7 +27,7 @@
         "minecraft:despawn": { "despawn_from_distance": {} },
         "minecraft:behavior.panic": {
           "priority": 1,
-          "speed_multiplier": 1.4,
+          "speed_multiplier": 1.25,
           "prefer_water": true
         },
         "minecraft:behavior.avoid_mob_type": {
@@ -35,94 +35,75 @@
           "entity_types": [
             {
               "filters": { "test": "is_family", "subject": "other", "value": "monster" },
-              "max_dist": 8,
-              "walk_speed_multiplier": 1.3,
-              "sprint_speed_multiplier": 1.5
+              "max_dist": 10,
+              "walk_speed_multiplier": 1.2,
+              "sprint_speed_multiplier": 1.4
             }
           ]
         },
         "minecraft:behavior.tempt": {
           "priority": 5,
-          "speed_multiplier": 1.1,
+          "speed_multiplier": 1.0,
           "can_tempt_vertically": true,
-          "items": ["cod"]
+          "items": ["kelp"]
         },
         "minecraft:behavior.move_to_water": {
           "priority": 6,
-          "search_range": 16,
-          "search_height": 5,
-          "goal_radius": 1.5
+          "search_range": 24,
+          "search_height": 6,
+          "goal_radius": 2.0
         }
       },
 
       "pk:tame": {
         "minecraft:is_tamed": {},
-        "minecraft:health": { "value": 30, "max": 30 },
-        "minecraft:attack": { "damage": 5 },
+        "minecraft:health": { "value": 80, "max": 80 },
+        "minecraft:attack": { "damage": 6 },
         "minecraft:sittable": {},
         "minecraft:healable": {
           "filters": { "test": "is_owner", "subject": "other" },
           "items": [
-            { "item": "cod", "heal_amount": 4 },
-            { "item": "salmon", "heal_amount": 6 }
+            { "item": "kelp", "heal_amount": 3 },
+            { "item": "cooked_cod", "heal_amount": 6 },
+            { "item": "prismarine_crystals", "heal_amount": 10 }
           ]
         },
         "minecraft:breedable": {
           "require_tame": true,
-          "breed_items": ["salmon", "tropical_fish"],
+          "breed_items": ["cooked_salmon", "kelp"],
           "breeds_with": [
             {
-              "mate_type": "pk:squirtle",
-              "baby_type": "pk:squirtle",
+              "mate_type": "pk:lapras",
+              "baby_type": "pk:lapras",
               "breed_event": { "event": "minecraft:entity_born", "target": "baby" }
             }
           ]
         },
-        "minecraft:environment_sensor": {
-          "triggers": [
-            {
-              "filters": {
-                "all_of": [
-                  { "test": "actor_health", "subject": "self", "operator": "<=", "value": 10 },
-                  { "test": "is_family", "subject": "self", "operator": "!=", "value": "torrent" }
-                ]
-              },
-              "event": "pk:torrent_on",
-              "target": "self"
-            },
-            {
-              "filters": {
-                "all_of": [
-                  { "test": "actor_health", "subject": "self", "operator": ">", "value": 10 },
-                  { "test": "is_family", "subject": "self", "value": "torrent" }
-                ]
-              },
-              "event": "pk:torrent_off",
-              "target": "self"
-            }
-          ]
+        "minecraft:rideable": {
+          "seat_count": 1,
+          "crouching_skip_interact": true,
+          "family_types": ["player"],
+          "interact_text": "action.interact.ride.horse",
+          "seats": { "position": [0, 1.35, 0.4], "lock_rider_rotation": 0 }
         },
-        "minecraft:behavior.owner_hurt_by_target": { "priority": 1 },
-        "minecraft:behavior.owner_hurt_target": { "priority": 2 },
-        "minecraft:behavior.stay_while_sitting": { "priority": 3 },
+        "minecraft:input_ground_controlled": {},
+        "minecraft:behavior.player_ride_tamed": { "priority": 1 },
+        "minecraft:behavior.owner_hurt_by_target": { "priority": 2 },
+        "minecraft:behavior.owner_hurt_target": { "priority": 3 },
+        "minecraft:behavior.stay_while_sitting": { "priority": 4 },
         "minecraft:behavior.breed": { "priority": 5, "speed_multiplier": 1.0 },
         "minecraft:behavior.follow_owner": {
           "priority": 6,
-          "speed_multiplier": 1.3,
-          "start_distance": 8,
-          "stop_distance": 2,
+          "speed_multiplier": 1.4,
+          "start_distance": 10,
+          "stop_distance": 3,
           "can_teleport": true
         }
       },
 
-      "pk:torrent": {
-        "minecraft:type_family": { "family": ["squirtle", "torrent", "mob"] },
-        "minecraft:shooter": { "def": "pk:water_gun_torrent" }
-      },
-
       "pk:caught": {
         "minecraft:transformation": {
-          "into": "pk:caught_squirtle",
+          "into": "pk:caught_lapras",
           "delay": { "value": 0.35 },
           "keep_owner": true,
           "drop_equipment": false,
@@ -132,15 +113,15 @@
     },
 
     "components": {
-      "minecraft:type_family": { "family": ["squirtle", "mob"] },
-      "minecraft:collision_box": { "width": 0.8, "height": 1.0 },
-      "minecraft:health": { "value": 20, "max": 20 },
-      "minecraft:attack": { "damage": 3 },
-      "minecraft:movement": { "value": 0.24 },
-      "minecraft:underwater_movement": { "value": 0.28 },
-      "minecraft:water_movement": { "drag_factor": 0.85 },
-      "minecraft:follow_range": { "value": 24, "max": 24 },
-      "minecraft:knockback_resistance": { "value": 0.5 },
+      "minecraft:type_family": { "family": ["lapras", "mob"] },
+      "minecraft:collision_box": { "width": 1.4, "height": 2.4 },
+      "minecraft:health": { "value": 50, "max": 50 },
+      "minecraft:attack": { "damage": 4 },
+      "minecraft:movement": { "value": 0.13 },
+      "minecraft:underwater_movement": { "value": 0.34 },
+      "minecraft:water_movement": { "drag_factor": 0.88 },
+      "minecraft:follow_range": { "value": 32, "max": 32 },
+      "minecraft:knockback_resistance": { "value": 0.85 },
       "minecraft:navigation.generic": {
         "is_amphibious": true,
         "can_path_over_water": true,
@@ -149,22 +130,22 @@
         "can_sink": false,
         "avoid_damage_blocks": true
       },
-      "minecraft:movement.amphibious": { "max_turn": 15 },
+      "minecraft:movement.amphibious": { "max_turn": 12 },
       "minecraft:jump.static": {},
       "minecraft:physics": {},
-      "minecraft:pushable": { "is_pushable": true, "is_pushable_by_piston": true },
+      "minecraft:pushable": { "is_pushable": false, "is_pushable_by_piston": true },
       "minecraft:breathable": {
-        "total_supply": 15,
+        "total_supply": 30,
         "suffocate_time": 0,
         "breathes_water": true,
         "breathes_air": true,
         "generates_bubbles": false
       },
       "minecraft:nameable": {},
-      "minecraft:leashable": { "soft_distance": 4, "hard_distance": 6, "max_distance": 10 },
-      "minecraft:loot": { "table": "loot_tables/entities/squirtle.json" },
+      "minecraft:leashable": { "soft_distance": 5, "hard_distance": 8, "max_distance": 12 },
+      "minecraft:loot": { "table": "loot_tables/entities/lapras.json" },
       "minecraft:experience_reward": {
-        "on_death": "query.last_hit_by_player ? Math.Random(1,4) : 0"
+        "on_death": "query.last_hit_by_player ? Math.Random(3,7) : 0"
       },
       "minecraft:damage_sensor": {
         "triggers": [
@@ -182,70 +163,61 @@
               }
             }
           },
+          {
+            "cause": "projectile",
+            "deals_damage": "no",
+            "damage_multiplier": 0,
+            "filters": {
+              "any_of": [
+                { "test": "is_family", "subject": "damager", "value": "water_move" },
+                { "test": "is_family", "subject": "other", "value": "water_move" }
+              ]
+            }
+          },
+          { "cause": "freezing", "deals_damage": "no", "damage_multiplier": 0 },
+          { "cause": "drowning", "deals_damage": "no", "damage_multiplier": 0 },
+          { "cause": "fire", "damage_multiplier": 2.0 },
+          { "cause": "fire_tick", "damage_multiplier": 2.0 },
+          { "cause": "lava", "damage_multiplier": 2.0 },
           { "cause": "lightning", "damage_multiplier": 2.0 },
-          { "cause": "fire", "damage_multiplier": 0.5 },
-          { "cause": "fire_tick", "damage_multiplier": 0.5 },
-          { "cause": "lava", "damage_multiplier": 0.5 },
+          { "cause": "projectile", "damage_multiplier": 0.75 },
+          { "cause": "entity_attack", "damage_multiplier": 0.75 },
           { "cause": "fall", "damage_multiplier": 0.5 }
         ]
       },
       "minecraft:tameable": {
-        "probability": 0.3,
-        "tame_items": ["cod"],
+        "probability": 0.22,
+        "tame_items": ["prismarine_crystals"],
         "tame_event": { "event": "pk:on_tame", "target": "self" }
       },
-      "minecraft:shooter": { "def": "pk:water_gun" },
-      "minecraft:environment_sensor": {
-        "triggers": [
-          {
-            "filters": {
-              "all_of": [
-                { "test": "actor_health", "subject": "self", "operator": "<=", "value": 7 },
-                { "test": "is_family", "subject": "self", "operator": "!=", "value": "torrent" }
-              ]
-            },
-            "event": "pk:torrent_on",
-            "target": "self"
-          },
-          {
-            "filters": {
-              "all_of": [
-                { "test": "actor_health", "subject": "self", "operator": ">", "value": 7 },
-                { "test": "is_family", "subject": "self", "value": "torrent" }
-              ]
-            },
-            "event": "pk:torrent_off",
-            "target": "self"
-          }
-        ]
-      },
+      "minecraft:shooter": { "def": "pk:ice_beam" },
       "minecraft:behavior.hurt_by_target": { "priority": 2 },
       "minecraft:behavior.ranged_attack": {
         "priority": 4,
-        "attack_interval_min": 1.4,
-        "attack_interval_max": 2.6,
+        "attack_interval_min": 1.8,
+        "attack_interval_max": 3.2,
         "burst_shots": 1,
-        "attack_radius": 13,
-        "attack_radius_min": 3,
+        "attack_radius": 16,
+        "attack_radius_min": 4,
         "charge_shoot_trigger": 0
       },
       "minecraft:behavior.melee_attack": {
         "priority": 7,
-        "speed_multiplier": 1.2,
+        "speed_multiplier": 1.1,
         "track_target": true,
-        "reach_multiplier": 1.4
+        "reach_multiplier": 1.6
       },
       "minecraft:behavior.random_swim": {
         "priority": 8,
         "interval": 0,
-        "xz_dist": 20,
-        "y_dist": 8
+        "xz_dist": 24,
+        "y_dist": 6
       },
       "minecraft:behavior.random_stroll": { "priority": 9, "speed_multiplier": 1.0 },
       "minecraft:behavior.look_at_player": {
         "priority": 10,
-        "look_distance": 8,
-        "probability": 0.02
+        "look_distance": 12,
+        "probability": 0.04
       },
       "minecraft:behavior.random_look_around": { "priority": 11 },
       "minecraft:conditional_bandwidth_optimization": {}
@@ -257,8 +229,8 @@
           { "add": { "component_groups": ["pk:wild"] } },
           {
             "randomize": [
-              { "weight": 90, "add": { "component_groups": ["pk:adult"] } },
-              { "weight": 10, "add": { "component_groups": ["pk:baby"] } }
+              { "weight": 92, "add": { "component_groups": ["pk:adult"] } },
+              { "weight": 8, "add": { "component_groups": ["pk:baby"] } }
             ]
           }
         ]
@@ -274,12 +246,6 @@
         "remove": { "component_groups": ["pk:wild"] },
         "add": { "component_groups": ["pk:tame"] }
       },
-      "pk:torrent_on": {
-        "add": { "component_groups": ["pk:torrent"] }
-      },
-      "pk:torrent_off": {
-        "remove": { "component_groups": ["pk:torrent"] }
-      },
       "pk:on_captured": {
         "sequence": [
           {
@@ -292,8 +258,8 @@
               "operator": "!=", "value": "minecraft:is_tamed"
             },
             "randomize": [
-              { "weight": 3, "add": { "component_groups": ["pk:caught"] } },
-              { "weight": 2, "trigger": "pk:break_free" }
+              { "weight": 2, "add": { "component_groups": ["pk:caught"] } },
+              { "weight": 3, "trigger": "pk:break_free" }
             ]
           }
         ]

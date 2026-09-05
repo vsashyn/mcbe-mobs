@@ -2,7 +2,7 @@
   "format_version": "1.21.0",
   "minecraft:entity": {
     "description": {
-      "identifier": "pk:rayquaza",
+      "identifier": "pk:moltres",
       "is_spawnable": true,
       "is_summonable": true,
       "is_experimental": false
@@ -11,8 +11,8 @@
     "component_groups": {
       "pk:wild": {
         "minecraft:tameable": {
-          "probability": 0.34,
-          "tame_items": ["ancient_debris", "golden_apple"],
+          "probability": 0.28,
+          "tame_items": ["blaze_rod", "magma_cream"],
           "tame_event": { "event": "pk:on_tame", "target": "self" }
         },
         "minecraft:despawn": {
@@ -21,15 +21,19 @@
         "minecraft:behavior.nearest_attackable_target": {
           "priority": 4,
           "must_see": true,
-          "must_see_forget_duration": 8.0,
+          "must_see_forget_duration": 6.0,
           "reselect_targets": true,
           "scan_interval": 20,
-          "within_radius": 40,
-          "target_search_height": 64,
+          "within_radius": 20,
+          "target_search_height": 48,
           "entity_types": [
             {
               "filters": { "test": "is_family", "subject": "other", "value": "monster" },
-              "max_dist": 40
+              "max_dist": 32
+            },
+            {
+              "filters": { "test": "is_family", "subject": "other", "value": "player" },
+              "max_dist": 20
             }
           ]
         }
@@ -38,14 +42,14 @@
       "pk:tame": {
         "minecraft:is_tamed": {},
         "minecraft:persistent": {},
-        "minecraft:health": { "value": 220, "max": 220 },
-        "minecraft:attack": { "damage": 14 },
-        "minecraft:flying_speed": { "value": 0.32 },
+        "minecraft:health": { "value": 170, "max": 170 },
+        "minecraft:attack": { "damage": 11, "effect_name": "wither", "effect_duration": 3 },
+        "minecraft:flying_speed": { "value": 0.34 },
         "minecraft:healable": {
           "filters": { "test": "is_owner", "subject": "other" },
           "items": [
-            { "item": "golden_apple", "heal_amount": 40 },
-            { "item": "ancient_debris", "heal_amount": 80 }
+            { "item": "magma_cream", "heal_amount": 20 },
+            { "item": "blaze_rod", "heal_amount": 45 }
           ]
         },
         "minecraft:rideable": {
@@ -53,9 +57,33 @@
           "crouching_skip_interact": true,
           "family_types": ["player"],
           "interact_text": "action.interact.ride.horse",
-          "seats": { "position": [0, 1.35, 0.1], "lock_rider_rotation": 0 }
+          "seats": { "position": [0, 1.5, 0.2], "lock_rider_rotation": 0 }
         },
         "minecraft:input_air_controlled": {},
+        "minecraft:environment_sensor": {
+          "triggers": [
+            {
+              "filters": {
+                "all_of": [
+                  { "test": "actor_health", "subject": "self", "operator": "<=", "value": 85 },
+                  { "test": "is_family", "subject": "self", "operator": "!=", "value": "berserk" }
+                ]
+              },
+              "event": "pk:berserk_on",
+              "target": "self"
+            },
+            {
+              "filters": {
+                "all_of": [
+                  { "test": "actor_health", "subject": "self", "operator": ">", "value": 85 },
+                  { "test": "is_family", "subject": "self", "value": "berserk" }
+                ]
+              },
+              "event": "pk:berserk_off",
+              "target": "self"
+            }
+          ]
+        },
         "minecraft:behavior.player_ride_tamed": { "priority": 1 },
         "minecraft:behavior.owner_hurt_by_target": { "priority": 2 },
         "minecraft:behavior.owner_hurt_target": { "priority": 3 },
@@ -68,27 +96,25 @@
         }
       },
 
-      "pk:air_lock": {
-        "minecraft:environment_sensor": {
-          "triggers": [
-            {
-              "event": "pk:calm_the_sky",
-              "filters": { "test": "weather", "operator": "!=", "value": "clear" }
-            }
-          ]
+      "pk:berserk": {
+        "minecraft:type_family": { "family": ["moltres", "bird", "berserk", "mob"] },
+        "minecraft:attack": { "damage": 12, "effect_name": "wither", "effect_duration": 4 },
+        "minecraft:flying_speed": { "value": 0.34 },
+        "minecraft:behavior.ranged_attack": {
+          "priority": 5,
+          "attack_interval": { "min": 0.9, "max": 1.8 },
+          "attack_range": { "min": 3, "max": 28 },
+          "charge_shoot_trigger": 1,
+          "burst_interval": 0.2,
+          "burst_shots": 4,
+          "in_range_movement_mode": "follow_target",
+          "set_persistent": true
         }
       },
 
-      "pk:air_lock_spent": {
-        "minecraft:timer": {
-          "looping": false,
-          "time": 30,
-          "time_down_event": { "event": "pk:air_lock_ready", "target": "self" }
-        }
-      },
       "pk:caught": {
         "minecraft:transformation": {
-          "into": "pk:caught_rayquaza",
+          "into": "pk:caught_moltres",
           "delay": { "value": 0.35 },
           "keep_owner": true,
           "drop_equipment": false,
@@ -98,18 +124,18 @@
     },
 
     "components": {
-      "minecraft:type_family": { "family": ["rayquaza", "dragon", "mob"] },
-      "minecraft:collision_box": { "width": 1.8, "height": 1.8 },
-      "minecraft:health": { "value": 160, "max": 160 },
-      "minecraft:attack": { "damage": 10 },
-      "minecraft:knockback_resistance": { "value": 0.9 },
-      "minecraft:follow_range": { "value": 64, "max": 64 },
+      "minecraft:type_family": { "family": ["moltres", "bird", "mob"] },
+      "minecraft:collision_box": { "width": 1.6, "height": 1.6 },
+      "minecraft:health": { "value": 120, "max": 120 },
+      "minecraft:attack": { "damage": 8, "effect_name": "wither", "effect_duration": 3 },
+      "minecraft:knockback_resistance": { "value": 0.7 },
+      "minecraft:follow_range": { "value": 48, "max": 48 },
       "minecraft:experience_reward": {
-        "on_death": "query.last_hit_by_player ? 60 : 0"
+        "on_death": "query.last_hit_by_player ? 45 : 0"
       },
 
-      "minecraft:movement": { "value": 0.4 },
-      "minecraft:flying_speed": { "value": 0.22 },
+      "minecraft:movement": { "value": 0.38 },
+      "minecraft:flying_speed": { "value": 0.26 },
       "minecraft:movement.fly": {},
       "minecraft:navigation.fly": {
         "can_path_over_water": true,
@@ -147,7 +173,6 @@
               }
             }
           },
-          { "cause": "lightning", "deals_damage": false },
           { "cause": "fall", "deals_damage": false },
           { "cause": "drowning", "deals_damage": false },
           { "cause": "freezing", "deals_damage": false }
@@ -155,25 +180,49 @@
       },
 
       "minecraft:nameable": {},
-      "minecraft:loot": { "table": "loot_tables/entities/rayquaza.json" },
-      "minecraft:shooter": { "def": "pk:dragon_pulse" },
+      "minecraft:loot": { "table": "loot_tables/entities/moltres.json" },
+      "minecraft:shooter": { "def": "pk:fiery_wrath" },
+      "minecraft:environment_sensor": {
+        "triggers": [
+          {
+            "filters": {
+              "all_of": [
+                { "test": "actor_health", "subject": "self", "operator": "<=", "value": 60 },
+                { "test": "is_family", "subject": "self", "operator": "!=", "value": "berserk" }
+              ]
+            },
+            "event": "pk:berserk_on",
+            "target": "self"
+          },
+          {
+            "filters": {
+              "all_of": [
+                { "test": "actor_health", "subject": "self", "operator": ">", "value": 60 },
+                { "test": "is_family", "subject": "self", "value": "berserk" }
+              ]
+            },
+            "event": "pk:berserk_off",
+            "target": "self"
+          }
+        ]
+      },
       "minecraft:behavior.float": { "priority": 0 },
       "minecraft:behavior.hurt_by_target": { "priority": 1 },
       "minecraft:behavior.ranged_attack": {
         "priority": 5,
-        "attack_interval": { "min": 1.5, "max": 3.0 },
-        "attack_range": { "min": 4, "max": 32 },
+        "attack_interval": { "min": 1.4, "max": 2.8 },
+        "attack_range": { "min": 4, "max": 24 },
         "charge_shoot_trigger": 1,
-        "burst_interval": 0.35,
+        "burst_interval": 0.25,
         "burst_shots": 3,
         "in_range_movement_mode": "follow_target",
         "set_persistent": true
       },
       "minecraft:behavior.random_fly": {
         "priority": 8,
-        "xz_dist": 24,
-        "y_dist": 12,
-        "y_offset": 4,
+        "xz_dist": 20,
+        "y_dist": 10,
+        "y_offset": 3,
         "speed_multiplier": 1.0,
         "can_land_on_trees": false,
         "avoid_damage_blocks": true
@@ -181,31 +230,24 @@
       "minecraft:behavior.look_at_player": {
         "priority": 9,
         "look_distance": 24,
-        "probability": 0.08
+        "probability": 0.1
       },
       "minecraft:behavior.random_look_around": { "priority": 10 }
     },
 
     "events": {
       "minecraft:entity_spawned": {
-        "add": { "component_groups": ["pk:wild", "pk:air_lock"] }
+        "add": { "component_groups": ["pk:wild"] }
       },
       "pk:on_tame": {
-        "remove": { "component_groups": ["pk:wild"] },
+        "remove": { "component_groups": ["pk:wild", "pk:berserk"] },
         "add": { "component_groups": ["pk:tame"] }
       },
-      "pk:calm_the_sky": {
-        "sequence": [
-          { "queue_command": { "command": "weather clear" } },
-          {
-            "remove": { "component_groups": ["pk:air_lock"] },
-            "add": { "component_groups": ["pk:air_lock_spent"] }
-          }
-        ]
+      "pk:berserk_on": {
+        "add": { "component_groups": ["pk:berserk"] }
       },
-      "pk:air_lock_ready": {
-        "remove": { "component_groups": ["pk:air_lock_spent"] },
-        "add": { "component_groups": ["pk:air_lock"] }
+      "pk:berserk_off": {
+        "remove": { "component_groups": ["pk:berserk"] }
       },
       "pk:on_captured": {
         "sequence": [
@@ -226,7 +268,7 @@
         "remove": { "component_groups": ["pk:caught"] }
       },
       "minecraft:entity_transformed": {
-        "add": { "component_groups": ["pk:tame", "pk:air_lock"] }
+        "add": { "component_groups": ["pk:tame"] }
       }
     }
   }

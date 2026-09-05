@@ -122,7 +122,12 @@
             "on_damage": {
               "event": "pk:on_captured",
               "target": "self",
-              "filters": { "test": "is_family", "subject": "other", "value": "poke_ball" }
+              "filters": {
+                "any_of": [
+                  { "test": "is_family", "subject": "damager", "value": "poke_ball" },
+                  { "test": "is_family", "subject": "other", "value": "poke_ball" }
+                ]
+              }
             }
           },
           { "cause": "magic", "deals_damage": false },

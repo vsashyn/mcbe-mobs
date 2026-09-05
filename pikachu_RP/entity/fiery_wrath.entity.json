@@ -1,0 +1,15 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:fiery_wrath",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/moltres/fiery_wrath" },
+      "geometry": { "default": "geometry.fiery_wrath" },
+      "animations": { "spin": "animation.fiery_wrath.spin" },
+      "scripts": { "animate": ["spin"] },
+      "particle_effects": { "trail": "minecraft:dragon_breath_trail" },
+      "render_controllers": ["controller.render.fiery_wrath"]
+    }
+  }
+}

@@ -2,28 +2,27 @@
   "format_version": "1.21.0",
   "minecraft:entity": {
     "description": {
-      "identifier": "pk:water_gun_torrent",
+      "identifier": "pk:fiery_wrath",
       "is_spawnable": false,
       "is_summonable": true,
       "is_experimental": false
     },
     "components": {
-      "minecraft:type_family": { "family": ["water_move", "water_gun_torrent"] },
-      "minecraft:collision_box": { "width": 0.25, "height": 0.25 },
+      "minecraft:collision_box": { "width": 0.3, "height": 0.3 },
       "minecraft:physics": {},
       "minecraft:pushable": { "is_pushable": false, "is_pushable_by_piston": false },
       "minecraft:conditional_bandwidth_optimization": {},
       "minecraft:projectile": {
         "power": 2.0,
-        "gravity": 0.03,
+        "gravity": 0.0,
         "inertia": 1.0,
-        "liquid_inertia": 0.99,
-        "uncertainty_base": 2,
+        "liquid_inertia": 1.0,
+        "uncertainty_base": 4,
         "uncertainty_multiplier": 1,
         "anchor": 1,
-        "offset": [0, -0.3, 0],
-        "shoot_sound": "random.bow",
-        "hit_sound": "random.splash",
+        "offset": [0, -0.4, 0],
+        "shoot_sound": "cast.spell",
+        "hit_sound": "random.fizz",
         "shoot_target": true,
         "should_bounce": false,
         "on_hit": {
@@ -33,12 +32,7 @@
             "semi_random_diff_damage": false,
             "destroy_on_hit": true
           },
-          "particle_on_hit": {
-            "particle_type": "watersplash",
-            "num_particles": 10,
-            "on_entity_hit": true,
-            "on_other_hit": true
-          },
+          "catch_fire": { "fire_duration": 3 },
           "remove_on_hit": {}
         }
       }

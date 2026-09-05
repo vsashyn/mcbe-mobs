@@ -7,4 +7,18 @@ dist/
 # Python
 __pycache__/
 *.pyc
-.claude
+
+# Local agent config; the skills it symlinks live in .agents/
+.claude/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Windows
+Thumbs.db
+
+# Stray build artifacts outside dist/
+*.mcaddon
+*.mcpack
