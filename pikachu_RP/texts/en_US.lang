@@ -16,3 +16,7 @@ entity.pk:caught_rayquaza.name=Poké Ball (Black Rayquaza)
 action.interact.pick_up=Pick Up
 entity.pk:kleavor.name=Kleavor
 item.spawn_egg.entity.pk:kleavor.name=Spawn Kleavor
+entity.pk:squirtle.name=Squirtle
+item.spawn_egg.entity.pk:squirtle.name=Spawn Squirtle
+item.pk:poke_ball_squirtle.name=Poké Ball (Squirtle)
+entity.pk:caught_squirtle.name=Poké Ball (Squirtle)

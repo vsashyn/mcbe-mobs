@@ -1,10 +1,12 @@
 # Pokémon
 
-A Minecraft Bedrock add-on with four custom mobs. `pk:pikachu` is a tameable
+A Minecraft Bedrock add-on with five custom mobs. `pk:pikachu` is a tameable
 electric mob that fights with a Thunder Shock projectile. `pk:arboliva` is a
 tameable olive tree that answers with a six-shot volley of oil. `pk:rayquaza`
 is the black shiny Rayquaza, a five-block sky serpent that never lands.
-`pk:kleavor` has axes for hands and no ranged attack at all.
+`pk:kleavor` has axes for hands and no ranged attack at all. `pk:squirtle` is
+the water starter: it swims, it shoots Water Gun, and it hits harder the closer
+it gets to fainting.
 
 The folders, the pack names and the built `.mcaddon` still say Pikachu, from
 when it was the only mob here.
@@ -107,6 +109,41 @@ runs the other way, and drowning costs it double.
 
 On death it drops 0-2 flint, a couple of cobblestone, or one worn stone axe.
 
+## Squirtle
+
+`pk:squirtle` is the only mob here that is as much at home in water as out of
+it. It is a squat biped: a big round head over a cream plastron, a red-brown
+shell that wraps wider than the body so its edges show from the front, stubby
+clawed arms and legs, and a three-segment tail that curls back and up over the
+shell.
+
+Wild Squirtle stand on beaches, along rivers and in swamps, alone or in small
+groups. They wander between land and water on their own, keep clear of
+monsters, panic toward water rather than away from it, and follow anyone
+holding raw cod. Feed one cod and it has a 30% chance to tame per fish.
+
+A tamed Squirtle follows its owner, withdraws into its shell when you interact
+with it, heals from cod and salmon, and gets tougher (30 health, 5 attack
+damage instead of 20 and 3). Two tamed adults fed salmon or tropical fish will
+breed.
+
+Water Gun is the attack. A single jet, 4 damage with knockback, from 3 to 13
+blocks; inside three blocks it tackles instead. The jet barely slows in water,
+so a Squirtle fighting in a river is as dangerous as one on the bank.
+
+Torrent is its ability, and here it does what the games say: below a third of
+its health, Squirtle's water moves hit 1.5× harder. The shooter swaps from
+`pk:water_gun` to `pk:water_gun_torrent`, 6 damage instead of 4, and swaps back
+if it heals. Everything else about the attack stays the same, so Torrent is a
+damage change and nothing else.
+
+The shell is worth something and the type chart costs it. It shrugs off half of
+any fall, fire, lava or burn damage and most knockback, breathes water so it
+never drowns, and takes double from lightning, which is the exact opposite of
+Pikachu.
+
+On death it drops 0-2 prismarine shards, or a raw cod.
+
 ## Poké Ball
 
 `pk:poke_ball` is an item you throw. It is the one thing in the pack that is
@@ -158,6 +195,9 @@ pikachu_BP/                           behavior pack
   entities/rayquaza.json              stats, flight, taming, riding, Air Lock
   entities/kleavor.json               stats, AI, taming, breeding, block breaking
   entities/dragon_pulse.json          the bolt Rayquaza shoots, three at a time
+  entities/squirtle.json              stats, amphibious movement, taming, Torrent
+  entities/water_gun.json             the jet Squirtle shoots
+  entities/water_gun_torrent.json     the same jet at 1.5x, once Torrent is up
   entities/poke_ball_thrown.json      the ball in flight; catches what it hits
   entities/poke_ball_*_thrown.json    a full ball, turns back into its mob
   entities/caught_*.json              a ball on the ground, waiting to be picked up
@@ -176,6 +216,8 @@ pikachu_RP/                           resource pack
   animations/rayquaza.animation.json  hover, glide, hunt, head tracking, spin
   models/entity/kleavor.geo.json      27 bones, 33 cubes, 128x128, no projectile
   animations/kleavor.animation.json   idle, walk, chop, sit, head tracking
+  models/entity/squirtle.geo.json     11 bones on a 64x64 sheet, plus the jet
+  animations/squirtle.animation.json  idle, waddle, swim, withdraw, head tracking
   models/entity/poke_ball.geo.json    five cubes on a 32x32 sheet, one bone
   animations/poke_ball.animation.json spin in flight, bob at rest
   textures/items/*.png                inventory icons, 16x16
@@ -201,6 +243,12 @@ overlaps another or runs off the sheet.
 Box UV is fixed at one texel per model unit. That ties sheet size to model
 size, so a mob cannot be made bigger without either a proportionally bigger
 sheet or texels coarser than the rest of the game.
+
+`gen_textures.py` keeps every mob's palette in one flat namespace at the top of
+the file, so a new mob whose colour name collides with an older one silently
+repaints the older mob. Nothing catches it: `validate.py` does not look at
+pixels, and the only sign is an unrelated `.png` turning up in `git status`
+after a run. Check that list against the mob you actually touched.
 
 ## Installing
 
@@ -240,10 +288,12 @@ can edit a JSON file and just leave and rejoin the world.
 /give @s pk:arboliva_spawn_egg
 /give @s pk:rayquaza_spawn_egg
 /give @s pk:kleavor_spawn_egg
+/give @s pk:squirtle_spawn_egg
 /summon pk:pikachu ~ ~ ~
 /summon pk:arboliva ~ ~ ~
 /summon pk:rayquaza ~ ~10 ~
 /summon pk:kleavor ~ ~ ~
+/summon pk:squirtle ~ ~ ~
 /give @s pk:poke_ball 16
 /give @s pk:poke_ball_pikachu
 ```
@@ -253,9 +303,15 @@ so at ground level it spends its first seconds shouldering out of the terrain.
 
 Turn on Content Log in Settings, Creator, to see JSON errors as they happen.
 `/give @s sweet_berries 64` speeds up taming Pikachu, `/give @s bone_meal 64`
-does the same for Arboliva, `/give @s ancient_debris 16` for Rayquaza and
-`/give @s flint 64` for Kleavor. To see the chop, summon a Kleavor and a zombie
-near each other; it goes for the zombie on its own.
+does the same for Arboliva, `/give @s ancient_debris 16` for Rayquaza,
+`/give @s flint 64` for Kleavor and `/give @s cod 64` for Squirtle. To see the
+chop, summon a Kleavor and a zombie near each other; it goes for the zombie on
+its own.
+
+To see Water Gun, hit a Squirtle from a dozen blocks away and back off: it
+answers with the jet, and closes to tackle if you come inside three blocks. To
+see Torrent, `/effect @e[type=pk:squirtle,c=1] instant_damage 1 1` down to under
+a third of its health and watch the jets get heavier.
 Balls are worth testing on a tamed mob first, because a tame catch never fails.
 
 `/reload` only reloads functions and scripts, so it will not pick up a changed
@@ -396,12 +452,43 @@ Kleavor is one flat tan from the collar down and without an outline per cube
 the chest, the hanging plate and both thighs merge into a single mass at mob
 scale.
 
+## Squirtle's four states
+
+The controller picks between idle, waddle, swim and withdraw, in that order of
+precedence, off `query.is_sitting`, `query.is_in_water` and
+`query.modified_move_speed`.
+
+The waddle is a two-legged gait, so the legs swing in opposite phase and the
+arms counter them. The number that matters is the body's vertical bob. A leg
+rotated away from vertical lifts its own foot, so the hips have to rise with
+it or the feet sink into the ground: with a 3-unit leg swinging 40 degrees the
+lift is `3 * (1 - cos 40°)`, about 0.7, and it peaks where the swing peaks.
+That is why the bob is `cos²` of the stride phase and not `|cos|` or a plain
+sine. Change either the leg length or the 40 and the 0.7 has to move with them.
+
+The stride constant is 26. Squirtle's legs are the same length as Pikachu's, so
+it sits near Pikachu's 24, a little quicker because a biped takes two steps to
+a bound's one.
+
+Swimming pitches the whole body 48 degrees nose-down and the head cancels 34 of
+that, so it looks along its own path instead of at the riverbed. Arms row and
+legs kick on the same 300-degree-a-second beat in opposite phase, and the tail
+runs a slower wave with each segment lagging the one ahead by 50 degrees, which
+is what makes it read as a rudder rather than a flag.
+
+Withdraw is the sit pose, because that is what a turtle does when it stays put.
+Head, arms, legs and tail all scale down between 0.4 and 0.5 and slide inward,
+which drops them inside a shell that stays full size; nothing else in the pack
+animates `scale`. A slow `life_time` sway on the head and tail keeps a withdrawn
+Squirtle from reading as a dropped prop.
+
 ## Not done yet
 
 No custom sounds. Adding them means shipping `.ogg` files plus a
 `sounds/sound_definitions.json`, and wiring `minecraft:ambient_sound_interval`
 in the behavior pack. Thunder Shock borrows vanilla `cast.spell` and
-`random.fizz`, Oil Salvo borrows `random.bow` and `random.splash`.
+`random.fizz`, Oil Salvo and Water Gun both borrow `random.bow` and
+`random.splash`.
 
 No cheek-spark particles on the caster, and no aroma burst on Arboliva. Bedrock
 has no event hook on `minecraft:behavior.ranged_attack`, so both need a
@@ -410,6 +497,17 @@ scripting-API listener or a melee-driven animation controller instead.
 Kleavor's chop is untested in game. `query.is_delayed_attacking` is the query
 the ravager's attack animation reads, and the controller here is wired the same
 way, but nothing has confirmed the swing lands on the same frame as the damage.
+
+Squirtle has no Rain Dish. The hidden ability heals a sixteenth of max health a
+turn in rain, and Bedrock has no heal-over-time component to hang that on, so
+it would need the scripting API.
+
+Squirtle is untested in game. Torrent leans on `minecraft:environment_sensor`
+and the `actor_health` filter, and it guards itself against re-firing by
+swapping `minecraft:type_family` to carry a `torrent` family that the sensor
+then tests for; that guard is the part most likely to be wrong, and the symptom
+would be the component group being re-added every tick rather than once. The
+withdraw pose is also the only place in the pack that animates bone `scale`.
 
 Riding Rayquaza is untested in game. `minecraft:input_air_controlled` is what
 the reference documents for three-dimensional WASD control of a mount, but no

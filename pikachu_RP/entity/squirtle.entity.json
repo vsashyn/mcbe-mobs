@@ -1,0 +1,24 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:squirtle",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/squirtle/squirtle" },
+      "geometry": { "default": "geometry.squirtle" },
+      "animations": {
+        "idle": "animation.squirtle.idle",
+        "walk": "animation.squirtle.walk",
+        "swim": "animation.squirtle.swim",
+        "sit": "animation.squirtle.withdraw",
+        "look_at_target": "animation.squirtle.look_at_target",
+        "move": "controller.animation.squirtle.move"
+      },
+      "scripts": {
+        "animate": ["look_at_target", "move"]
+      },
+      "render_controllers": ["controller.render.squirtle"],
+      "spawn_egg": { "base_color": "#6cbad4", "overlay_color": "#a6583a" }
+    }
+  }
+}
