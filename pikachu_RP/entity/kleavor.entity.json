@@ -1,0 +1,24 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:kleavor",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/kleavor/kleavor" },
+      "geometry": { "default": "geometry.kleavor" },
+      "animations": {
+        "idle": "animation.kleavor.idle",
+        "walk": "animation.kleavor.walk",
+        "chop": "animation.kleavor.chop",
+        "sit": "animation.kleavor.sit",
+        "look_at_target": "animation.kleavor.look_at_target",
+        "move": "controller.animation.kleavor.move"
+      },
+      "scripts": {
+        "animate": ["look_at_target", "move"]
+      },
+      "render_controllers": ["controller.render.kleavor"],
+      "spawn_egg": { "base_color": "#c3a473", "overlay_color": "#4a3a35" }
+    }
+  }
+}

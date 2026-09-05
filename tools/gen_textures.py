@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
-"""Generates the Pikachu entity textures and pack icons.
+"""Generates every entity texture in the add-on, plus both pack icons.
 
 Run from anywhere: python3 tools/gen_textures.py
-Writes pikachu.png (64x64), thunder_shock.png (16x16) and both pack_icon.png.
+Writes pikachu.png (64x64), arboliva.png (128x64), thunder_shock.png and
+oil_salvo.png (16x16), and both pack_icon.png.
 
-UV slots here must stay in step with models/entity/pikachu.geo.json. Each cube
-claims a Minecraft box-UV net: 2*depth + 2*width wide, depth + height tall.
+Pikachu's UV slots are written out here and have to stay in step with
+models/entity/pikachu.geo.json by hand. Arboliva's are read straight off
+models/entity/arboliva.geo.json instead, which is the better way round: 25
+cubes are too many to keep in step twice.
+
+Each cube claims a Minecraft box-UV net: 2*depth + 2*width wide, depth +
+height tall. On a side face, texture row 0 is the top of the cube.
 """
+import json
+import math
 import os
 import random
 import struct
@@ -68,6 +76,63 @@ MOUTH   = (74, 48, 32, A)
 NOSE    = (198, 148, 66, A)
 SPARK   = (255, 245, 170, A)
 SPARK_C = (255, 255, 255, A)
+
+# Arboliva: leaf green, tan bark, a cream face and deep purple olives.
+LEAF      = (124, 196, 96, A)
+LEAF_HI   = (176, 228, 128, A)
+LEAF_LO   = (86, 152, 66, A)
+LEAF_LO2  = (62, 118, 50, A)
+TRUNK     = (178, 134, 94, A)
+TRUNK_HI  = (206, 168, 124, A)
+TRUNK_LO  = (134, 96, 64, A)
+TRUNK_LO2 = (104, 72, 46, A)
+CREAM     = (244, 240, 226, A)
+CREAM_LO  = (206, 198, 180, A)
+PLUM      = (132, 54, 108, A)
+PLUM_HI   = (176, 96, 150, A)
+PLUM_LO   = (88, 34, 72, A)
+LID       = (78, 64, 60, A)
+MOUTH_A   = (122, 86, 72, A)
+OIL       = (94, 80, 34, A)
+OIL_HI    = (172, 152, 66, A)
+OIL_LO    = (58, 48, 20, A)
+
+# Shiny Rayquaza is charcoal where the ordinary one is emerald, so almost
+# every pixel is one of three near-blacks and the whole read has to come
+# from the accents: yellow rings, red-outlined belts, pale grey blades.
+SCALE     = (68, 66, 74, A)
+SCALE_HI  = (104, 102, 112, A)
+SCALE_LO  = (40, 39, 45, A)
+RAY_YEL   = (247, 214, 43, A)
+RAY_RED   = (198, 48, 58, A)
+BLADE     = (142, 146, 152, A)
+BLADE_LO  = (94, 98, 104, A)
+IRIS      = (250, 214, 60, A)
+SLIT      = (18, 17, 20, A)
+MAW       = (222, 96, 112, A)
+FANG      = (242, 244, 248, A)
+PULSE     = (128, 74, 196, A)
+PULSE_HI  = (204, 162, 252, A)
+PULSE_LO  = (72, 36, 120, A)
+
+
+# Kleavor: sand-coloured chitin, chipped stone plates, and two axe heads that
+# are the same stone a shade cooler. The only bright pixels on it are the eyes
+# and the horn, which is what makes the face read at mob scale.
+CHIT     = (203, 169, 119, A)
+CHIT_HI  = (230, 201, 153, A)
+CHIT_LO  = (166, 133, 86, A)
+CHIT_LO2 = (126, 98, 58, A)
+ROCK     = (74, 58, 53, A)
+ROCK_HI  = (106, 86, 76, A)
+ROCK_LO  = (46, 35, 31, A)
+EDGE     = (146, 130, 118, A)
+PALE     = (231, 220, 194, A)
+PALE_HI  = (246, 240, 224, A)
+PALE_LO  = (196, 182, 152, A)
+BONE     = (238, 234, 220, A)
+BONE_LO  = (196, 190, 170, A)
+EYE_W    = (247, 247, 242, A)
 
 
 def faces(u, v, w, h, d):
@@ -180,6 +245,396 @@ write_png(os.path.join(ROOT,
           "pikachu_RP/textures/entity/pikachu/thunder_shock.png"), 16, 16, sp)
 
 
+# --------------------------------------------------------------- arboliva.png
+# Painted off the model rather than off a second copy of the UV table, so the
+# slots cannot drift out of step with models/entity/arboliva.geo.json. Each
+# bone name picks a material; the tree is bark, foliage, one face and fruit.
+GEO = os.path.join(ROOT, "pikachu_RP/models/entity/arboliva.geo.json")
+arb = next(g for g in json.load(open(GEO))["minecraft:geometry"]
+           if g["description"]["identifier"] == "geometry.arboliva")
+tex = canvas(arb["description"]["texture_width"],
+             arb["description"]["texture_height"])
+
+SIDES = ("right", "front", "left", "back")
+
+
+def bark(u, v, w, h, d, seed):
+    """One lit column and one shaded column per face rounds the trunk off."""
+    f = paint_box(tex, u, v, w, h, d, TRUNK, top=TRUNK_HI, bottom=TRUNK_LO2)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x + 1, y, 1, fh, TRUNK_HI)
+        rect(tex, x + fw - 1, y, 1, fh, TRUNK_LO)
+        rect(tex, x, y + fh - 1, fw, 1, TRUNK_LO2)     # dark toward the roots
+        speckle(tex, x, y + 1, fw, max(fh - 2, 1), TRUNK_LO,
+                seed=seed + x, density=0.07)           # knots
+    return f
+
+
+def foliage(u, v, w, h, d, seed):
+    f = paint_box(tex, u, v, w, h, d, LEAF, top=LEAF_HI, bottom=LEAF_LO2)
+    speckle(tex, *f["top"], LEAF, seed=seed, density=0.22)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, LEAF_HI)                # lit on the upper rim
+        rect(tex, x, y + fh - 1, fw, 1, LEAF_LO)       # shaded underneath
+        speckle(tex, x, y + 1, fw, max(fh - 2, 1), LEAF_LO,
+                seed=seed + x, density=0.12)
+    return f
+
+
+def fruit(u, v, w, h, d, seed):
+    f = paint_box(tex, u, v, w, h, d, PLUM, top=PLUM_LO, bottom=PLUM_LO)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, PLUM_LO)                # shade at the stem
+        put(tex, x, y + 2, PLUM_HI)                    # one gloss pixel
+    return f
+
+
+def facing(u, v, w, h, d, seed):
+    """The trunk's top segment: cream, closed eyes, blending into bark below."""
+    f = paint_box(tex, u, v, w, h, d, CREAM, top=LEAF_LO, bottom=TRUNK)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, CREAM_LO)               # shade off the canopy
+        rect(tex, x, y + fh - 1, fw, 1, TRUNK_HI)      # meets the trunk
+    x, y, fw, fh = f["front"]
+    for c in (0, 1, 3, 4):
+        put(tex, x + c, y + 3, LID)                    # eyes, closed
+    put(tex, x, y + 4, CREAM_LO)                       # crease under each lid
+    put(tex, x + 4, y + 4, CREAM_LO)
+    put(tex, x + 2, y + 5, MOUTH_A)
+    return f
+
+
+MATERIAL = (
+    ("olive", fruit),
+    ("head", facing),
+    ("crown", foliage),
+    ("blade", foliage),
+    ("branch", foliage),
+    ("frond", foliage),
+    ("body", bark),
+    ("leg", bark),
+)
+
+for bone in arb["bones"]:
+    paint = next(fn for pre, fn in MATERIAL if bone["name"].startswith(pre))
+    for i, cube in enumerate(bone.get("cubes", [])):
+        u, v = cube["uv"]
+        w, h, d = (int(n) for n in cube["size"])
+        paint(u, v, w, h, d, u + v + i)
+
+write_png(os.path.join(ROOT,
+          "pikachu_RP/textures/entity/arboliva/arboliva.png"),
+          arb["description"]["texture_width"],
+          arb["description"]["texture_height"], tex)
+
+# ------------------------------------------------------------- oil_salvo.png
+og = canvas(16, 16)
+gf = paint_box(og, 0, 0, 3, 3, 3, OIL, top=OIL_HI, bottom=OIL_LO)
+for name in gf:
+    x, y, w, h = gf[name]
+    put(og, x + w // 2, y + h // 2, OIL_HI)
+write_png(os.path.join(ROOT,
+          "pikachu_RP/textures/entity/arboliva/oil_salvo.png"), 16, 16, og)
+
+
+# --------------------------------------------------------------- rayquaza.png
+# Fifty-odd cubes is too many to keep a hand-written copy of the UV table
+# honest against the model, so this one reads its slots back out of the
+# geometry that owns them and addresses each cube by bone name.
+RAY_GEO = json.load(open(os.path.join(
+    ROOT, "pikachu_RP/models/entity/rayquaza.geo.json")))
+RAY_BONES = {
+    b["name"]: [(c["uv"][0], c["uv"][1], *(int(n) for n in c["size"]))
+                for c in b.get("cubes", [])]
+    for g in RAY_GEO["minecraft:geometry"]
+    if g["description"]["identifier"] == "geometry.rayquaza"
+    for b in g["bones"]
+}
+
+tex = canvas(128, 128)
+
+
+def scales(bone, i=0, base=SCALE, top=SCALE_HI, bottom=SCALE_LO):
+    """Paints one cube of a bone in body colours and hands back its net."""
+    u, v, w, h, d = RAY_BONES[bone][i]
+    return paint_box(tex, u, v, w, h, d, base, top=top, bottom=bottom)
+
+
+def girdle(f, rows, col, sides=("top", "bottom", "right", "left")):
+    """Wraps a stripe around a segment at a fixed depth.
+
+    Depth runs down the rows of the top and bottom faces and across the
+    columns of the two side faces. Rows are counted out from the middle of
+    the face, so the stripe stays centred whichever way round it unwraps.
+    """
+    for name in sides:
+        x, y, fw, fh = f[name]
+        for r in rows:
+            if name in ("top", "bottom"):
+                rect(tex, x, y + fh // 2 + r, fw, 1, col)
+            else:
+                rect(tex, x + fw // 2 + r, y, 1, fh, col)
+
+
+def outline(f, name, col):
+    x, y, fw, fh = f[name]
+    rect(tex, x, y, fw, 1, col)
+    rect(tex, x, y + fh - 1, fw, 1, col)
+    rect(tex, x, y, 1, fh, col)
+    rect(tex, x + fw - 1, y, 1, fh, col)
+
+
+def belly(f, col=RAY_YEL):
+    x, y, fw, fh = f["bottom"]
+    rect(tex, x + (fw - 1) // 2, y, 1, fh, col)
+
+
+# skull and upper snout. The snout underside doubles as the roof of the mouth,
+# which is the only place the model shows any colour that is not near-black.
+skull = scales("head", 0)
+belly(skull)
+snout = scales("head", 1)
+x, y, fw, fh = snout["bottom"]
+rect(tex, x, y, fw, fh, MAW)
+rect(tex, x, y, 1, fh, FANG)
+rect(tex, x + fw - 1, y, 1, fh, FANG)
+
+for face in ("right", "left"):
+    x, y, fw, fh = snout[face]
+    rect(tex, x, y + fh - 1, fw, 1, SLIT)           # mouth line, upper half
+
+jaw = scales("jaw")
+for face in ("right", "left"):
+    x, y, fw, fh = jaw[face]
+    rect(tex, x, y, fw, 1, SLIT)                    # mouth line, lower half
+x, y, fw, fh = jaw["top"]
+rect(tex, x, y, fw, fh, MAW)
+rect(tex, x, y, 1, fh, FANG)
+rect(tex, x + fw - 1, y, 1, fh, FANG)
+
+plate = scales("disc", base=RAY_YEL, top=BLADE, bottom=SCALE_LO)
+x, y, fw, fh = plate["top"]
+rect(tex, x + 1, y + 1, fw - 2, fh - 2, BLADE_LO)
+
+for side in ("left", "right"):
+    scales(f"brow_{side}", base=SCALE_HI, top=SCALE_HI, bottom=SLIT)
+    # the eye is its own slab so the pupil never depends on which way round
+    # a side face happens to unwrap
+    eye = scales(f"eye_{side}", base=SCALE_LO, top=SCALE_LO, bottom=SCALE_LO)
+    x, y, fw, fh = eye[side]
+    rect(tex, x, y, fw, fh, IRIS)
+    rect(tex, x, y, fw, 1, SLIT)                    # heavy lid
+    rect(tex, x + fw // 2, y + 1, 1, fh - 1, SLIT)  # slit pupil
+
+    bf = scales(f"cheek_{side}", base=BLADE, top=BLADE_LO, bottom=BLADE_LO)
+    for face in ("left", "right"):
+        outline(bf, face, BLADE_LO)
+
+# every fin is the same object: a charcoal web with a red rim on the two
+# broad faces, which is what the red rudders on the real thing read as
+for bone in RAY_BONES:
+    if bone.startswith(("finup_", "findn_", "gill_")):
+        # a fin's tip is the far end from the body, which for the pair hanging
+        # underneath is the bottom of its net rather than the top
+        tip = "bottom" if bone.startswith("findn_") else "top"
+        ff = scales(bone, top=SCALE_LO, bottom=SCALE_LO)
+        rect(tex, *ff[tip], RAY_RED)
+        for face in ("left", "right"):
+            x, y, fw, fh = ff[face]
+            rect(tex, x, y if tip == "top" else y + fh - 1, fw, 1, RAY_RED)
+
+for side in ("left", "right"):
+    for limb in (f"arm_{side}", f"forearm_{side}"):
+        scales(limb)
+    scales(f"hand_{side}", 0)
+    for i in range(1, len(RAY_BONES[f"hand_{side}"])):
+        scales(f"hand_{side}", i, base=FANG, top=FANG, bottom=BLADE_LO)
+
+# the serpent itself. Hollow yellow rings and red-staple belts alternate down
+# the body the way they do in the artwork; the belt skips the underside, so it
+# reads as a staple laid over the back rather than a hoop.
+RINGS = ("neck", "body3", "body6", "body8")
+BELTS = ("body1", "body4", "body7")
+for bone, cubes in RAY_BONES.items():
+    if bone != "neck" and not bone.startswith("body") and bone != "tail":
+        continue
+    sf = scales(bone)
+    for name in ("top", "bottom"):
+        x, y, fw, fh = sf[name]
+        rect(tex, x, y, fw, 1, SCALE_LO)
+        rect(tex, x, y + fh - 1, fw, 1, SCALE_LO)
+    if bone in RINGS:
+        girdle(sf, (-2, 1), RAY_YEL)
+    elif bone in BELTS:
+        girdle(sf, (-2, 2), RAY_RED, sides=("top", "right", "left"))
+    if bone in ("neck", "body1", "body2"):
+        belly(sf)
+
+write_png(os.path.join(ROOT,
+          "pikachu_RP/textures/entity/rayquaza/rayquaza.png"), 128, 128, tex)
+
+# ------------------------------------------------------------ dragon_pulse.png
+dp = canvas(16, 16)
+df = paint_box(dp, 0, 0, 4, 4, 4, PULSE, top=PULSE_HI, bottom=PULSE_LO)
+for name in df:
+    x, y, w, h = df[name]
+    rect(dp, x + 1, y + 1, w - 2, h - 2, PULSE_HI)
+    put(dp, x + w // 2, y + h // 2, RAY_YEL)
+write_png(os.path.join(ROOT,
+          "pikachu_RP/textures/entity/rayquaza/dragon_pulse.png"), 16, 16, dp)
+
+
+# --------------------------------------------------------------- kleavor.png
+# Same trick as arboliva: the slots are read back out of the model, and a bone
+# name picks the material. Kleavor needs one extra rule, because an axe arm is
+# a stone wrist plus the two slabs that make up the blade.
+#
+# Every plate gets a dark border. Kleavor is one flat tan all over, so without
+# an outline per cube the chest, the hanging plate and both thighs merge into a
+# single tan mass at mob scale.
+KLE_GEO = os.path.join(ROOT, "pikachu_RP/models/entity/kleavor.geo.json")
+kle = next(g for g in json.load(open(KLE_GEO))["minecraft:geometry"]
+           if g["description"]["identifier"] == "geometry.kleavor")
+tex = canvas(kle["description"]["texture_width"],
+             kle["description"]["texture_height"])
+
+
+def outlined(u, v, w, h, d, base, hi, lo, edge):
+    f = paint_box(tex, u, v, w, h, d, base, top=hi, bottom=lo)
+    for name in f:
+        x, y, fw, fh = f[name]
+        if fw >= 3 and fh >= 2:
+            rect(tex, x, y, fw, 1, edge)
+            rect(tex, x, y + fh - 1, fw, 1, edge)
+        if fw >= 2 and fh >= 3:
+            rect(tex, x, y, 1, fh, edge)
+            rect(tex, x + fw - 1, y, 1, fh, edge)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        if fw >= 3 and fh >= 3:
+            rect(tex, x + 1, y + 1, fw - 2, 1, hi)     # lit just inside the rim
+    return f
+
+
+def chitin(u, v, w, h, d, seed):
+    """Shell plate: flat tan inside a hard edge."""
+    return outlined(u, v, w, h, d, CHIT, CHIT_HI, CHIT_LO, CHIT_LO2)
+
+
+def pale(u, v, w, h, d, seed):
+    """The joints. Nearly bone-white, which is what separates the thin
+    segments from the tan plates they hang off."""
+    return outlined(u, v, w, h, d, PALE, PALE_HI, PALE_LO, CHIT_LO)
+
+
+def stone(u, v, w, h, d, seed):
+    """Plate armour: chipped, so the speckle carries both directions."""
+    f = paint_box(tex, u, v, w, h, d, ROCK, top=ROCK_HI, bottom=ROCK_LO)
+    for name in f:
+        x, y, fw, fh = f[name]
+        speckle(tex, x, y, fw, fh, ROCK_LO, seed=seed + x, density=0.18)
+        speckle(tex, x, y, fw, fh, ROCK_HI, seed=seed + x + 7, density=0.10)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, ROCK_HI)                # facet catching the light
+        rect(tex, x, y + fh - 1, fw, 1, ROCK_LO)
+    return f
+
+
+def blade(u, v, w, h, d, seed):
+    """An axe slab. Its broad faces are the two w by h ones, front and back.
+
+    The honed edge is the far rim and the underside, so those get the pale
+    line and the broad faces get a border to match. Everything else stays
+    flat and dark, the way the axes read in the artwork.
+    """
+    f = paint_box(tex, u, v, w, h, d, ROCK, top=ROCK_LO, bottom=EDGE)
+    for name in ("front", "back"):
+        x, y, fw, fh = f[name]
+        speckle(tex, x, y, fw, fh, ROCK_LO, seed=seed + x, density=0.14)
+        speckle(tex, x, y, fw, fh, ROCK_HI, seed=seed + x + 3, density=0.05)
+        rect(tex, x, y + fh - 1, fw, 1, EDGE)          # honed underside
+    x, y, fw, fh = f["front"]
+    rect(tex, x + fw - 1, y, 1, fh, EDGE)              # +x rim, front face
+    x, y, fw, fh = f["back"]
+    rect(tex, x, y, 1, fh, EDGE)                       # same rim, unwrapped
+    for side in ("right", "left"):
+        x, y, fw, fh = f[side]
+        rect(tex, x, y + fh - 1, fw, 1, EDGE)
+    return f
+
+
+def horn(u, v, w, h, d, seed):
+    f = paint_box(tex, u, v, w, h, d, BONE, top=BONE, bottom=BONE_LO)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y + fh - 1, fw, 1, BONE_LO)       # dirty where it meets rock
+    return f
+
+
+def visor(u, v, w, h, d, seed):
+    """The head, 8 across. Two white eyes, each cut away toward the middle,
+    which is the whole of Kleavor's expression."""
+    f = chitin(u, v, w, h, d, seed)
+    x, y, fw, fh = f["front"]
+
+    def px(c, r, col):
+        put(tex, x + c, y + r, col)
+
+    rect(tex, x, y, fw, 1, CHIT_LO)                    # shadow off the helm
+    for out, mid, inn in ((0, 1, 2), (7, 6, 5)):
+        px(inn, 0, EYE)                                # brow, low on the inside
+        px(out, 1, EYE_W)
+        px(mid, 1, EYE_W)
+        px(inn, 1, EYE)
+        px(out, 2, EYE_W)
+        px(mid, 2, EYE)
+        px(inn, 2, EYE)
+    for c in (2, 3, 4, 5):
+        px(c, 3, ROCK)                                 # mandible plate
+    px(2, 4, ROCK_HI)
+    px(5, 4, ROCK_HI)
+    px(3, 4, CHIT_LO2)
+    px(4, 4, CHIT_LO2)
+    return f
+
+
+KLE_MATERIAL = (
+    ("axe", stone),          # cube 0 is the wrist; the slabs are handled below
+    ("rock", stone),
+    ("claw", stone),
+    ("horn", horn),
+    ("head", visor),
+    ("neck", pale),
+    ("forearm", pale),
+    ("shin", pale),
+    ("body", chitin),
+    ("abdomen", chitin),
+    ("arm", chitin),
+    ("leg", chitin),
+    ("foot", chitin),
+)
+
+for bone in kle["bones"]:
+    for i, cube in enumerate(bone.get("cubes", [])):
+        if bone["name"].startswith("axe") and i > 0:
+            paint = blade
+        else:
+            paint = next(fn for pre, fn in KLE_MATERIAL
+                         if bone["name"].startswith(pre))
+        u, v = cube["uv"]
+        w, h, d = (int(n) for n in cube["size"])
+        paint(u, v, w, h, d, u + v + i)
+
+write_png(os.path.join(ROOT, "pikachu_RP/textures/entity/kleavor/kleavor.png"),
+          kle["description"]["texture_width"],
+          kle["description"]["texture_height"], tex)
+
+
 # ------------------------------------------------------------- pack_icon.png
 def pack_icon(path):
     ic = canvas(16, 16)
@@ -212,3 +667,55 @@ def pack_icon(path):
 pack_icon(os.path.join(ROOT, "pikachu_RP/pack_icon.png"))
 pack_icon(os.path.join(ROOT, "pikachu_BP/pack_icon.png"))
 print("textures written")
+
+# ------------------------------------------------------------ poke_ball icons
+# Every ball is the same 16x16 sprite with a different button, so the shell is
+# written once as a pixel map and OCCUPANTS only carries the colour. Adding a
+# mob to the ball system means a line here and a matching entry in
+# item_texture.json.
+BALL = """
+....#######.....
+...##xxxx=##....
+..#x--xxxxx=#...
+.#x-oo-xxxxx=#..
+##x----xxxxxx##.
+#xxxxxxxxxxxx=#.
+#++++++##+++++#.
+#+++++#@@#++++#.
+#+++++#@@#++++#.
+#*ooooo##ooooo#.
+##ooooooooooo##.
+.#*ooooooooo*#..
+..#*ooooooo*#...
+...##*****##....
+....#######.....
+................
+""".strip("\n").splitlines()
+
+BALL_INK = {
+    "#": (35, 31, 32, A),        # outline
+    "x": (239, 64, 54, A),       # the red half
+    "-": (244, 122, 114, A),     # its highlight
+    "=": (194, 56, 49, A),       # and its shaded rim
+    "o": (255, 255, 255, A),     # the white half
+    "*": (161, 158, 158, A),
+    "+": (88, 88, 90, A),        # the band across the middle
+    ".": (0, 0, 0, 0),
+}
+
+OCCUPANTS = {
+    "": (232, 232, 234, A),      # empty, the button unlit
+    "pikachu": YEL,
+    "arboliva": LEAF,
+    "kleavor": (208, 112, 58, A),
+    "rayquaza": PULSE_HI,
+}
+
+for who, button in OCCUPANTS.items():
+    ball = canvas(16, 16)
+    for y, row in enumerate(BALL):
+        for x, ch in enumerate(row):
+            ball[y][x] = button if ch == "@" else BALL_INK[ch]
+    name = "poke_ball_" + who if who else "poke_ball"
+    write_png(os.path.join(ROOT, "pikachu_RP/textures/items", name + ".png"),
+              16, 16, ball)

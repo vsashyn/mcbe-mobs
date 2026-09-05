@@ -6,6 +6,9 @@ otherwise show up as an invisible mob: a texture path that does not resolve, a
 geometry or animation name nothing defines, an event that adds a component
 group that was never declared, a UV net that runs off the texture.
 
+Every check runs over every entity in the behavior pack, so a new mob is
+covered the moment its files land.
+
 Run: python3 tools/validate.py   (exit 1 on any error)
 """
 import glob
@@ -27,6 +30,8 @@ for p in paths:
 
 geos, anims, ctrls, rends = set(), set(), set(), set()
 for p, d in docs.items():
+    if not isinstance(d, dict):        # texts/languages.json and friends
+        continue
     for g in d.get("minecraft:geometry", []):
         geos.add(g["description"]["identifier"])
     if "animations" in d and "minecraft:client_entity" not in d:
@@ -76,32 +81,116 @@ for p in glob.glob(os.path.join(RP, "animation_controllers/*.json")):
                 if isinstance(a, str) and a not in known_aliases:
                     errs.append(f"{cn}.{sn}: '{a}' is not mapped on any client entity")
 
-pk = docs[os.path.join(BP, "entities/pikachu.json")]["minecraft:entity"]
-groups = set(pk["component_groups"])
-
-
-def walk(ev, node):
+def walk(rel, groups, ev, node):
     if isinstance(node, dict):
         for k, v in node.items():
             if k in ("add", "remove"):
                 for g in v.get("component_groups", []):
                     if g not in groups:
-                        errs.append(f"event {ev}: unknown component group '{g}'")
+                        errs.append(f"{rel}: event {ev} names unknown "
+                                    f"component group '{g}'")
             else:
-                walk(ev, v)
+                walk(rel, groups, ev, v)
     elif isinstance(node, list):
         for v in node:
-            walk(ev, v)
+            walk(rel, groups, ev, v)
 
 
-for ev, body in pk["events"].items():
-    walk(ev, body)
-if pk["components"]["minecraft:shooter"]["def"] not in bp_ids:
-    errs.append("minecraft:shooter points at an entity that does not exist")
-if not os.path.exists(os.path.join(BP, pk["components"]["minecraft:loot"]["table"])):
-    errs.append("loot table is missing")
-if pk["components"]["minecraft:tameable"]["tame_event"]["event"] not in pk["events"]:
-    errs.append("tame_event is not defined")
+for p in sorted(glob.glob(os.path.join(BP, "entities/*.json"))):
+    ent = docs[p]["minecraft:entity"]
+    rel = os.path.relpath(p, ROOT)
+    groups = set(ent.get("component_groups", {}))
+    events = ent.get("events", {})
+    comps = ent.get("components", {})
+
+    for ev, body in events.items():
+        walk(rel, groups, ev, body)
+
+    shooter = comps.get("minecraft:shooter")
+    if shooter and shooter["def"] not in bp_ids:
+        errs.append(f"{rel}: minecraft:shooter points at "
+                    f"'{shooter['def']}', which does not exist")
+    loot = comps.get("minecraft:loot")
+    if loot and not os.path.exists(os.path.join(BP, loot["table"])):
+        errs.append(f"{rel}: loot table '{loot['table']}' is missing")
+    tame = comps.get("minecraft:tameable")
+    if tame and tame["tame_event"]["event"] not in events:
+        errs.append(f"{rel}: tame_event '{tame['tame_event']['event']}' "
+                    f"is not defined")
+
+    # transformation and interact both reach outside the file, and both turn
+    # up inside component groups as often as in the base components
+    for src in [comps] + list(ent.get("component_groups", {}).values()):
+        into = src.get("minecraft:transformation", {}).get("into", "")
+        if into and into.split("<")[0] not in bp_ids:
+            errs.append(f"{rel}: transforms into '{into}', which does not exist")
+        inter = src.get("minecraft:interact", {}).get("interactions", [])
+        for i in ([inter] if isinstance(inter, dict) else inter):
+            for key in ("add_items", "spawn_items"):
+                t = i.get(key, {}).get("table")
+                if t and not os.path.exists(os.path.join(BP, t)):
+                    errs.append(f"{rel}: interact {key} table '{t}' is missing")
+            ev = i.get("on_interact", {}).get("event")
+            if ev and ev not in events:
+                errs.append(f"{rel}: on_interact fires '{ev}', which is not defined")
+
+# An item reaches into the resource pack for its icon and back into the
+# behavior pack for the entity it throws. Both are silent failures in game:
+# a missing icon shows up as the purple-and-black checker, and a throwable
+# whose projectile does not resolve simply vanishes from the hand.
+icons = docs.get(os.path.join(RP, "textures/item_texture.json"),
+                 {}).get("texture_data", {})
+item_ids = set()
+for p in sorted(glob.glob(os.path.join(BP, "items/*.json"))):
+    it = docs[p]["minecraft:item"]
+    rel = os.path.relpath(p, ROOT)
+    comps = it.get("components", {})
+    item_ids.add(it["description"]["identifier"])
+
+    proj = comps.get("minecraft:projectile")
+    if proj and proj["projectile_entity"] not in bp_ids:
+        errs.append(f"{rel}: throws '{proj['projectile_entity']}', "
+                    f"which does not exist")
+    if "minecraft:throwable" in comps and not proj:
+        errs.append(f"{rel}: throwable, but no minecraft:projectile says what")
+
+    icon = comps.get("minecraft:icon")
+    if isinstance(icon, dict):
+        icon = icon.get("textures", {}).get("default")
+    if not icon:
+        errs.append(f"{rel}: no minecraft:icon")
+    elif icon not in icons:
+        errs.append(f"{rel}: icon '{icon}' is not in item_texture.json")
+    else:
+        t = icons[icon]["textures"]
+        for one in ([t] if isinstance(t, str) else t):
+            if not os.path.exists(os.path.join(RP, one + ".png")):
+                errs.append(f"{rel}: icon texture '{one}.png' is missing")
+
+for p in sorted(glob.glob(os.path.join(BP, "loot_tables/**/*.json"),
+                          recursive=True)):
+    for pool in docs[p].get("pools", []):
+        for e in pool.get("entries", []):
+            if e.get("name", "").startswith("pk:") and e["name"] not in item_ids:
+                errs.append(f"{os.path.relpath(p, ROOT)}: drops '{e['name']}', "
+                            f"which is not an item this pack defines")
+
+for p in sorted(glob.glob(os.path.join(BP, "recipes/*.json"))):
+    for key, r in docs[p].items():
+        if not key.startswith("minecraft:recipe"):
+            continue
+        res = r.get("result", {})
+        for one in (res if isinstance(res, list) else [res]):
+            if one.get("item", "").startswith("pk:") and one["item"] not in item_ids:
+                errs.append(f"{os.path.relpath(p, ROOT)}: makes "
+                            f"'{one['item']}', which is not an item this "
+                            f"pack defines")
+
+for p in sorted(glob.glob(os.path.join(BP, "spawn_rules/*.json"))):
+    sid = docs[p]["minecraft:spawn_rules"]["description"]["identifier"]
+    if sid not in bp_ids:
+        errs.append(f"{os.path.relpath(p, ROOT)}: no behavior-pack entity "
+                    f"for {sid}")
 
 for pack, kind in ((BP, "data"), (RP, "resources")):
     m = docs[os.path.join(pack, "manifest.json")]
@@ -112,7 +201,7 @@ for pack, kind in ((BP, "data"), (RP, "resources")):
 
 bones_by_geo = {}
 for p, d in docs.items():
-    for g in d.get("minecraft:geometry", []):
+    for g in (d.get("minecraft:geometry", []) if isinstance(d, dict) else []):
         gid = g["description"]["identifier"]
         tw, th = g["description"]["texture_width"], g["description"]["texture_height"]
         bones_by_geo[gid] = {b["name"] for b in g["bones"]}
@@ -132,14 +221,17 @@ for p, d in docs.items():
                         errs.append(f"{gid}: uv overlap, {b['name']} vs {obn}")
                 claimed.append((u, v, nw, nh, b["name"]))
 
-pik = bones_by_geo.get("geometry.pikachu", set())
-shock = bones_by_geo.get("geometry.thunder_shock", set())
+# "animation.arboliva.walk" is expected to animate "geometry.arboliva", which
+# is what keeps one mob's clip from quietly naming another mob's bones.
 for p in glob.glob(os.path.join(RP, "animations/*.json")):
     for an, a in docs[p]["animations"].items():
-        pool = shock if "thunder" in an else pik
+        gid = "geometry." + an.split(".")[1]
+        if gid not in bones_by_geo:
+            errs.append(f"{an}: no {gid} to animate")
+            continue
         for bn in a.get("bones", {}):
-            if bn not in pool:
-                errs.append(f"{an}: animates bone '{bn}' that the geometry lacks")
+            if bn not in bones_by_geo[gid]:
+                errs.append(f"{an}: animates bone '{bn}' that {gid} lacks")
 
 print(f"parsed {len(paths)} json files")
 for e in errs:

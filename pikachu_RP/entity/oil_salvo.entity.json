@@ -1,0 +1,15 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:oil_salvo",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/arboliva/oil_salvo" },
+      "geometry": { "default": "geometry.oil_salvo" },
+      "animations": { "drip": "animation.oil_salvo.drip" },
+      "scripts": { "animate": ["drip"] },
+      "particle_effects": { "drip": "minecraft:basic_smoke_particle" },
+      "render_controllers": ["controller.render.oil_salvo"]
+    }
+  }
+}

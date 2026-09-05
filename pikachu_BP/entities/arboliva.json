@@ -2,7 +2,7 @@
   "format_version": "1.21.0",
   "minecraft:entity": {
     "description": {
-      "identifier": "pk:pikachu",
+      "identifier": "pk:arboliva",
       "is_spawnable": true,
       "is_summonable": true,
       "is_experimental": false
@@ -11,10 +11,10 @@
     "component_groups": {
       "pk:baby": {
         "minecraft:is_baby": {},
-        "minecraft:scale": { "value": 0.55 },
+        "minecraft:scale": { "value": 0.45 },
         "minecraft:ageable": {
-          "duration": 1200,
-          "feed_items": ["sweet_berries", "apple"],
+          "duration": 1800,
+          "feed_items": ["bone_meal", "apple"],
           "grow_up": { "event": "minecraft:ageable_grow_up", "target": "self" }
         }
       },
@@ -25,44 +25,43 @@
 
       "pk:wild": {
         "minecraft:despawn": { "despawn_from_distance": {} },
-        "minecraft:behavior.panic": { "priority": 1, "speed_multiplier": 1.6 },
         "minecraft:behavior.avoid_mob_type": {
           "priority": 3,
           "entity_types": [
             {
               "filters": { "test": "is_family", "subject": "other", "value": "monster" },
-              "max_dist": 8,
-              "walk_speed_multiplier": 1.4,
-              "sprint_speed_multiplier": 1.6
+              "max_dist": 6,
+              "walk_speed_multiplier": 1.3,
+              "sprint_speed_multiplier": 1.4
             }
           ]
         },
         "minecraft:behavior.tempt": {
           "priority": 5,
-          "speed_multiplier": 1.1,
-          "items": ["sweet_berries"]
+          "speed_multiplier": 0.9,
+          "items": ["bone_meal"]
         }
       },
 
       "pk:tame": {
         "minecraft:is_tamed": {},
-        "minecraft:health": { "value": 24, "max": 24 },
-        "minecraft:attack": { "damage": 4 },
+        "minecraft:health": { "value": 44, "max": 44 },
+        "minecraft:attack": { "damage": 5 },
         "minecraft:sittable": {},
         "minecraft:healable": {
           "filters": { "test": "is_owner", "subject": "other" },
           "items": [
-            { "item": "sweet_berries", "heal_amount": 4 },
+            { "item": "bone_meal", "heal_amount": 4 },
             { "item": "apple", "heal_amount": 6 }
           ]
         },
         "minecraft:breedable": {
           "require_tame": true,
-          "breed_items": ["apple", "golden_apple"],
+          "breed_items": ["apple", "oak_sapling"],
           "breeds_with": [
             {
-              "mate_type": "pk:pikachu",
-              "baby_type": "pk:pikachu",
+              "mate_type": "pk:arboliva",
+              "baby_type": "pk:arboliva",
               "breed_event": { "event": "minecraft:entity_born", "target": "baby" }
             }
           ]
@@ -70,17 +69,17 @@
         "minecraft:behavior.owner_hurt_by_target": { "priority": 1 },
         "minecraft:behavior.owner_hurt_target": { "priority": 2 },
         "minecraft:behavior.stay_while_sitting": { "priority": 3 },
-        "minecraft:behavior.breed": { "priority": 5, "speed_multiplier": 1.0 },
+        "minecraft:behavior.breed": { "priority": 5, "speed_multiplier": 0.9 },
         "minecraft:behavior.follow_owner": {
           "priority": 6,
-          "speed_multiplier": 1.3,
-          "start_distance": 8,
-          "stop_distance": 2
+          "speed_multiplier": 1.4,
+          "start_distance": 9,
+          "stop_distance": 3
         }
       },
       "pk:caught": {
         "minecraft:transformation": {
-          "into": "pk:caught_pikachu",
+          "into": "pk:caught_arboliva",
           "delay": { "value": 0.35 },
           "keep_owner": true,
           "drop_equipment": false,
@@ -90,54 +89,65 @@
     },
 
     "components": {
-      "minecraft:type_family": { "family": ["pikachu", "mob"] },
-      "minecraft:collision_box": { "width": 0.7, "height": 0.95 },
-      "minecraft:health": { "value": 16, "max": 16 },
-      "minecraft:attack": { "damage": 2 },
-      "minecraft:movement": { "value": 0.32 },
-      "minecraft:follow_range": { "value": 24, "max": 24 },
+      "minecraft:type_family": { "family": ["arboliva", "mob"] },
+      "minecraft:collision_box": { "width": 1.0, "height": 2.0 },
+      "minecraft:health": { "value": 30, "max": 30 },
+      "minecraft:attack": { "damage": 3 },
+      "minecraft:movement": { "value": 0.2 },
+      "minecraft:follow_range": { "value": 28, "max": 28 },
+      "minecraft:knockback_resistance": { "value": 0.6 },
       "minecraft:navigation.walk": {
-        "can_path_over_water": true,
+        "can_path_over_water": false,
         "avoid_water": true,
         "avoid_damage_blocks": true
       },
       "minecraft:movement.basic": {},
       "minecraft:jump.static": {},
-      "minecraft:can_climb": {},
       "minecraft:physics": {},
       "minecraft:pushable": { "is_pushable": true, "is_pushable_by_piston": true },
       "minecraft:breathable": { "total_supply": 15, "suffocate_time": 0 },
       "minecraft:nameable": {},
       "minecraft:leashable": { "soft_distance": 4, "hard_distance": 6, "max_distance": 10 },
-      "minecraft:loot": { "table": "loot_tables/entities/pikachu.json" },
+      "minecraft:loot": { "table": "loot_tables/entities/arboliva.json" },
       "minecraft:experience_reward": {
-        "on_death": "query.last_hit_by_player ? Math.Random(1,4) : 0"
+        "on_death": "query.last_hit_by_player ? Math.Random(3,7) : 0"
       },
       "minecraft:damage_sensor": {
         "triggers": [
-          { "cause": "lightning", "deals_damage": false }
+          { "cause": "magic", "deals_damage": false },
+          { "cause": "wither", "deals_damage": false },
+          { "cause": "fire", "damage_multiplier": 2 },
+          { "cause": "fire_tick", "damage_multiplier": 2 },
+          { "cause": "lava", "damage_multiplier": 2 }
         ]
       },
       "minecraft:tameable": {
-        "probability": 0.35,
-        "tame_items": ["sweet_berries"],
+        "probability": 0.3,
+        "tame_items": ["bone_meal"],
         "tame_event": { "event": "pk:on_tame", "target": "self" }
       },
-      "minecraft:shooter": { "def": "pk:thunder_shock" },
+      "minecraft:shooter": { "def": "pk:oil_salvo" },
       "minecraft:behavior.float": { "priority": 0 },
       "minecraft:behavior.hurt_by_target": { "priority": 2 },
       "minecraft:behavior.ranged_attack": {
         "priority": 4,
-        "attack_interval_min": 1.5,
-        "attack_interval_max": 3.0,
-        "burst_shots": 1,
-        "attack_radius": 12,
+        "attack_interval_min": 2.5,
+        "attack_interval_max": 4.5,
+        "burst_shots": 6,
+        "burst_interval": 0.2,
+        "attack_radius": 14,
+        "attack_radius_min": 3,
         "charge_shoot_trigger": 0
       },
-      "minecraft:behavior.random_stroll": { "priority": 8, "speed_multiplier": 1.0 },
+      "minecraft:behavior.melee_attack": {
+        "priority": 7,
+        "speed_multiplier": 1.0,
+        "track_target": true
+      },
+      "minecraft:behavior.random_stroll": { "priority": 8, "speed_multiplier": 0.8 },
       "minecraft:behavior.look_at_player": {
         "priority": 9,
-        "look_distance": 8,
+        "look_distance": 10,
         "probability": 0.02
       },
       "minecraft:behavior.random_look_around": { "priority": 10 }
@@ -149,8 +159,8 @@
           { "add": { "component_groups": ["pk:wild"] } },
           {
             "randomize": [
-              { "weight": 90, "add": { "component_groups": ["pk:adult"] } },
-              { "weight": 10, "add": { "component_groups": ["pk:baby"] } }
+              { "weight": 85, "add": { "component_groups": ["pk:adult"] } },
+              { "weight": 15, "add": { "component_groups": ["pk:baby"] } }
             ]
           }
         ]

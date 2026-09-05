@@ -1,0 +1,46 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "pk:oil_salvo",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "components": {
+      "minecraft:collision_box": { "width": 0.25, "height": 0.25 },
+      "minecraft:physics": {},
+      "minecraft:pushable": { "is_pushable": false, "is_pushable_by_piston": false },
+      "minecraft:conditional_bandwidth_optimization": {},
+      "minecraft:projectile": {
+        "power": 1.15,
+        "gravity": 0.04,
+        "inertia": 1.0,
+        "liquid_inertia": 0.9,
+        "uncertainty_base": 7,
+        "uncertainty_multiplier": 3,
+        "anchor": 1,
+        "offset": [0, -0.4, 0],
+        "shoot_sound": "random.bow",
+        "hit_sound": "random.splash",
+        "shoot_target": true,
+        "should_bounce": false,
+        "on_hit": {
+          "impact_damage": {
+            "damage": 2,
+            "knockback": false,
+            "semi_random_diff_damage": false,
+            "destroy_on_hit": true
+          },
+          "mob_effect": {
+            "effect": "slowness",
+            "duration": 2,
+            "amplifier": 0,
+            "visible": true
+          },
+          "remove_on_hit": {}
+        }
+      }
+    }
+  }
+}

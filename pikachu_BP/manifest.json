@@ -1,13 +1,13 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Pikachu Behavior Pack",
-    "description": "Adds Pikachu: a tameable electric mob that shoots Thunder Shock.",
+    "name": "Pokémon Behavior Pack",
+    "description": "Adds four tameable Pokemon and the Poke Ball that carries them.",
     "uuid": "cc5ced0a-340f-4288-8ca3-746a5ac8fa36",
     "version": [
       1,
       0,
-      2
+      8
     ],
     "min_engine_version": [
       1,
@@ -22,7 +22,7 @@
       "version": [
         1,
         0,
-        2
+        8
       ]
     }
   ],
@@ -32,7 +32,7 @@
       "version": [
         1,
         0,
-        2
+        8
       ]
     }
   ]

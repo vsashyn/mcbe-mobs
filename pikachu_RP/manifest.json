@@ -1,13 +1,13 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Pikachu Resource Pack",
-    "description": "Model, texture and animations for Pikachu.",
+    "name": "Pokémon Resource Pack",
+    "description": "Models, textures and animations for four Pokemon and the Poke Ball.",
     "uuid": "c7fd2117-f873-4991-8877-0dbaa14d0bc1",
     "version": [
       1,
       0,
-      2
+      8
     ],
     "min_engine_version": [
       1,
@@ -22,7 +22,7 @@
       "version": [
         1,
         0,
-        2
+        8
       ]
     }
   ],
@@ -32,7 +32,7 @@
       "version": [
         1,
         0,
-        2
+        8
       ]
     }
   ]

@@ -1,0 +1,23 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:arboliva",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/arboliva/arboliva" },
+      "geometry": { "default": "geometry.arboliva" },
+      "animations": {
+        "idle": "animation.arboliva.idle",
+        "walk": "animation.arboliva.walk",
+        "sit": "animation.arboliva.sit",
+        "look_at_target": "animation.arboliva.look_at_target",
+        "move": "controller.animation.arboliva.move"
+      },
+      "scripts": {
+        "animate": ["look_at_target", "move"]
+      },
+      "render_controllers": ["controller.render.arboliva"],
+      "spawn_egg": { "base_color": "#7cc460", "overlay_color": "#803468" }
+    }
+  }
+}

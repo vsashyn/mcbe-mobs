@@ -1,0 +1,44 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.kleavor.move": {
+      "initial_state": "idle",
+      "states": {
+        "idle": {
+          "animations": ["idle"],
+          "blend_transition": 0.3,
+          "transitions": [
+            { "sitting": "query.is_sitting" },
+            { "chopping": "query.is_delayed_attacking" },
+            { "walking": "query.modified_move_speed > 0.05" }
+          ]
+        },
+        "walking": {
+          "animations": ["walk"],
+          "blend_transition": 0.3,
+          "transitions": [
+            { "sitting": "query.is_sitting" },
+            { "chopping": "query.is_delayed_attacking" },
+            { "idle": "query.modified_move_speed <= 0.05" }
+          ]
+        },
+        "chopping": {
+          "animations": ["chop"],
+          "blend_transition": 0.12,
+          "transitions": [
+            { "sitting": "query.is_sitting" },
+            { "walking": "!query.is_delayed_attacking && query.modified_move_speed > 0.05" },
+            { "idle": "!query.is_delayed_attacking" }
+          ]
+        },
+        "sitting": {
+          "animations": ["sit"],
+          "blend_transition": 0.4,
+          "transitions": [
+            { "idle": "!query.is_sitting" }
+          ]
+        }
+      }
+    }
+  }
+}

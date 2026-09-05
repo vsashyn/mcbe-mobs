@@ -1,0 +1,19 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": { "identifier": "pk:poke_ball" },
+    "tags": ["crafting_table"],
+    "pattern": [
+      "RRR",
+      "IBI",
+      "WWW"
+    ],
+    "key": {
+      "R": { "item": "minecraft:red_dye" },
+      "I": { "item": "minecraft:iron_ingot" },
+      "B": { "item": "minecraft:redstone" },
+      "W": { "item": "minecraft:white_dye" }
+    },
+    "result": { "item": "pk:poke_ball", "count": 2 }
+  }
+}

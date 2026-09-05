@@ -1,0 +1,23 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:rayquaza",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/rayquaza/rayquaza" },
+      "geometry": { "default": "geometry.rayquaza" },
+      "animations": {
+        "hover": "animation.rayquaza.hover",
+        "glide": "animation.rayquaza.glide",
+        "hunt": "animation.rayquaza.hunt",
+        "look_at_target": "animation.rayquaza.look_at_target",
+        "move": "controller.animation.rayquaza.move"
+      },
+      "scripts": {
+        "animate": ["look_at_target", "move"]
+      },
+      "render_controllers": ["controller.render.rayquaza"],
+      "spawn_egg": { "base_color": "#2c2b30", "overlay_color": "#f2d024" }
+    }
+  }
+}

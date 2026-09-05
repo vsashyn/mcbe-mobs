@@ -1,0 +1,17 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "pk:poke_ball",
+      "menu_category": { "category": "equipment" }
+    },
+    "components": {
+      "minecraft:icon": "pk:poke_ball",
+      "minecraft:display_name": { "value": "item.pk:poke_ball.name" },
+      "minecraft:max_stack_size": 16,
+      "minecraft:hand_equipped": false,
+      "minecraft:throwable": { "do_swing_animation": true },
+      "minecraft:projectile": { "projectile_entity": "pk:poke_ball_thrown" }
+    }
+  }
+}

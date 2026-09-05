@@ -47,7 +47,7 @@ def main():
         for dep in m.get("dependencies", []):
             dep["version"] = new
         with open(path, "w") as f:
-            json.dump(m, f, indent=2)
+            json.dump(m, f, indent=2, ensure_ascii=False)
             f.write("\n")
 
     print("version " + ".".join(str(n) for n in new))

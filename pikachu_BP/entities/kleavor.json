@@ -1,0 +1,253 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "pk:kleavor",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+
+    "component_groups": {
+      "pk:baby": {
+        "minecraft:is_baby": {},
+        "minecraft:scale": { "value": 0.5 },
+        "minecraft:attack": { "damage": 2 },
+        "minecraft:ageable": {
+          "duration": 2400,
+          "feed_items": ["honeycomb", "flint"],
+          "grow_up": { "event": "minecraft:ageable_grow_up", "target": "self" }
+        }
+      },
+
+      "pk:adult": {
+        "minecraft:scale": { "value": 1.0 }
+      },
+
+      "pk:wild": {
+        "minecraft:despawn": { "despawn_from_distance": {} },
+        "minecraft:behavior.tempt": {
+          "priority": 6,
+          "speed_multiplier": 1.0,
+          "items": ["flint"]
+        }
+      },
+
+      "pk:tame": {
+        "minecraft:is_tamed": {},
+        "minecraft:health": { "value": 60, "max": 60 },
+        "minecraft:attack": { "damage": 9 },
+        "minecraft:sittable": {},
+        "minecraft:healable": {
+          "filters": { "test": "is_owner", "subject": "other" },
+          "items": [
+            { "item": "honeycomb", "heal_amount": 6 },
+            { "item": "flint", "heal_amount": 3 }
+          ]
+        },
+        "minecraft:breedable": {
+          "require_tame": true,
+          "breed_items": ["honeycomb"],
+          "breeds_with": [
+            {
+              "mate_type": "pk:kleavor",
+              "baby_type": "pk:kleavor",
+              "breed_event": { "event": "minecraft:entity_born", "target": "baby" }
+            }
+          ]
+        },
+        "minecraft:behavior.owner_hurt_by_target": { "priority": 1 },
+        "minecraft:behavior.owner_hurt_target": { "priority": 2 },
+        "minecraft:behavior.stay_while_sitting": { "priority": 3 },
+        "minecraft:behavior.breed": { "priority": 6, "speed_multiplier": 1.0 },
+        "minecraft:behavior.follow_owner": {
+          "priority": 7,
+          "speed_multiplier": 1.5,
+          "start_distance": 10,
+          "stop_distance": 3
+        }
+      },
+      "pk:caught": {
+        "minecraft:transformation": {
+          "into": "pk:caught_kleavor",
+          "delay": { "value": 0.35 },
+          "keep_owner": true,
+          "drop_equipment": false,
+          "transformation_sound": "beacon.deactivate"
+        }
+      },
+      "pk:caught": {
+        "minecraft:transformation": {
+          "into": "pk:caught_kleavor",
+          "delay": { "value": 0.35 },
+          "keep_owner": true,
+          "drop_equipment": false,
+          "transformation_sound": "beacon.deactivate"
+        }
+      }
+    },
+
+    "components": {
+      "minecraft:type_family": { "family": ["kleavor", "mob"] },
+      "minecraft:collision_box": { "width": 1.0, "height": 1.9 },
+      "minecraft:health": { "value": 40, "max": 40 },
+      "minecraft:attack": { "damage": 7 },
+      "minecraft:movement": { "value": 0.28 },
+      "minecraft:follow_range": { "value": 32, "max": 32 },
+      "minecraft:knockback_resistance": { "value": 0.7 },
+      "minecraft:navigation.walk": {
+        "can_path_over_water": false,
+        "avoid_water": true,
+        "avoid_damage_blocks": true
+      },
+      "minecraft:movement.basic": {},
+      "minecraft:jump.static": {},
+      "minecraft:can_climb": {},
+      "minecraft:physics": {},
+      "minecraft:pushable": { "is_pushable": true, "is_pushable_by_piston": true },
+      "minecraft:breathable": { "total_supply": 15, "suffocate_time": 0 },
+      "minecraft:nameable": {},
+      "minecraft:leashable": { "soft_distance": 4, "hard_distance": 6, "max_distance": 10 },
+      "minecraft:loot": { "table": "loot_tables/entities/kleavor.json" },
+      "minecraft:experience_reward": {
+        "on_death": "query.last_hit_by_player ? Math.Random(5,9) : 0"
+      },
+      "minecraft:damage_sensor": {
+        "triggers": [
+          { "cause": "fall", "damage_multiplier": 0.25 },
+          { "cause": "fire", "damage_multiplier": 0.5 },
+          { "cause": "fire_tick", "damage_multiplier": 0.5 },
+          { "cause": "lava", "damage_multiplier": 0.5 },
+          { "cause": "drowning", "damage_multiplier": 2 }
+        ]
+      },
+      "minecraft:tameable": {
+        "probability": 0.25,
+        "tame_items": ["flint"],
+        "tame_event": { "event": "pk:on_tame", "target": "self" }
+      },
+      "minecraft:break_blocks": {
+        "breakable_blocks": [
+          "minecraft:oak_leaves",
+          "minecraft:birch_leaves",
+          "minecraft:spruce_leaves",
+          "minecraft:jungle_leaves",
+          "minecraft:acacia_leaves",
+          "minecraft:dark_oak_leaves",
+          "minecraft:mangrove_leaves",
+          "minecraft:cherry_leaves",
+          "minecraft:azalea_leaves",
+          "minecraft:azalea_leaves_flowered",
+          "minecraft:vine",
+          "minecraft:bamboo"
+        ]
+      },
+      "minecraft:behavior.float": { "priority": 0 },
+      "minecraft:behavior.hurt_by_target": { "priority": 1 },
+      "minecraft:behavior.nearest_attackable_target": {
+        "priority": 3,
+        "must_see": true,
+        "must_see_forget_duration": 12,
+        "reselect_targets": true,
+        "within_radius": 20,
+        "entity_types": [
+          {
+            "filters": { "test": "is_family", "subject": "other", "value": "monster" },
+            "max_dist": 20
+          }
+        ]
+      },
+      "minecraft:behavior.delayed_attack": {
+        "priority": 4,
+        "attack_once": false,
+        "track_target": true,
+        "require_complete_path": false,
+        "random_stop_interval": 0,
+        "reach_multiplier": 1.6,
+        "speed_multiplier": 1.25,
+        "attack_duration": 0.75,
+        "hit_delay_pct": 0.45
+      },
+      "minecraft:behavior.random_stroll": { "priority": 8, "speed_multiplier": 0.7 },
+      "minecraft:behavior.look_at_player": {
+        "priority": 9,
+        "look_distance": 12,
+        "probability": 0.05
+      },
+      "minecraft:behavior.random_look_around": { "priority": 10 }
+    },
+
+    "events": {
+      "minecraft:entity_spawned": {
+        "sequence": [
+          { "add": { "component_groups": ["pk:wild"] } },
+          {
+            "randomize": [
+              { "weight": 90, "add": { "component_groups": ["pk:adult"] } },
+              { "weight": 10, "add": { "component_groups": ["pk:baby"] } }
+            ]
+          }
+        ]
+      },
+      "minecraft:entity_born": {
+        "add": { "component_groups": ["pk:tame", "pk:baby"] }
+      },
+      "minecraft:ageable_grow_up": {
+        "remove": { "component_groups": ["pk:baby"] },
+        "add": { "component_groups": ["pk:adult"] }
+      },
+      "pk:on_tame": {
+        "remove": { "component_groups": ["pk:wild"] },
+        "add": { "component_groups": ["pk:tame"] }
+      },
+      "pk:on_captured": {
+        "sequence": [
+          {
+            "filters": { "test": "has_component", "subject": "self", "value": "minecraft:is_tamed" },
+            "add": { "component_groups": ["pk:caught"] }
+          },
+          {
+            "filters": {
+              "test": "has_component", "subject": "self",
+              "operator": "!=", "value": "minecraft:is_tamed"
+            },
+            "randomize": [
+              { "weight": 1, "add": { "component_groups": ["pk:caught"] } },
+              { "weight": 1, "trigger": "pk:break_free" }
+            ]
+          }
+        ]
+      },
+      "pk:break_free": {
+        "add": { "component_groups": ["pk:wild"] }
+      },
+      "minecraft:entity_transformed": {
+        "add": { "component_groups": ["pk:adult", "pk:tame"] }
+      },
+      "pk:on_captured": {
+        "sequence": [
+          {
+            "filters": { "test": "has_component", "subject": "self", "value": "minecraft:is_tamed" },
+            "add": { "component_groups": ["pk:caught"] }
+          },
+          {
+            "filters": {
+              "test": "has_component", "subject": "self",
+              "operator": "!=", "value": "minecraft:is_tamed"
+            },
+            "randomize": [
+              { "weight": 1, "add": { "component_groups": ["pk:caught"] } },
+              { "weight": 1, "trigger": "pk:break_free" }
+            ]
+          }
+        ]
+      },
+      "pk:break_free": {
+        "add": { "component_groups": ["pk:wild"] }
+      },
+      "minecraft:entity_transformed": {
+        "add": { "component_groups": ["pk:adult", "pk:tame"] }
+      }
+    }
+  }
+}

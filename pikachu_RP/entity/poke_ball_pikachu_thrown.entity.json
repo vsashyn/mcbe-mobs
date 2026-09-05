@@ -1,0 +1,14 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:poke_ball_pikachu_thrown",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/poke_ball/poke_ball_pikachu" },
+      "geometry": { "default": "geometry.poke_ball" },
+      "animations": { "spin": "animation.poke_ball.spin" },
+      "scripts": { "animate": ["spin"] },
+      "render_controllers": ["controller.render.poke_ball"]
+    }
+  }
+}

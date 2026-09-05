@@ -1,0 +1,711 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.arboliva",
+        "texture_width": 128,
+        "texture_height": 64,
+        "visible_bounds_width": 3,
+        "visible_bounds_height": 3,
+        "visible_bounds_offset": [
+          0,
+          1,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            6,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.5,
+                6,
+                -3.5
+              ],
+              "size": [
+                7,
+                5,
+                7
+              ],
+              "uv": [
+                40,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -3,
+                10,
+                -3
+              ],
+              "size": [
+                6,
+                7,
+                6
+              ],
+              "uv": [
+                68,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "name": "leg_left",
+          "parent": "body",
+          "pivot": [
+            1.6,
+            7,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                0.6,
+                2,
+                -1
+              ],
+              "size": [
+                2,
+                5,
+                2
+              ],
+              "uv": [
+                78,
+                23
+              ]
+            },
+            {
+              "origin": [
+                0.2,
+                0,
+                -1.5
+              ],
+              "size": [
+                3,
+                3,
+                3
+              ],
+              "uv": [
+                94,
+                23
+              ]
+            }
+          ]
+        },
+        {
+          "name": "leg_right",
+          "parent": "body",
+          "pivot": [
+            -1.6,
+            7,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -2.6,
+                2,
+                -1
+              ],
+              "size": [
+                2,
+                5,
+                2
+              ],
+              "uv": [
+                86,
+                23
+              ]
+            },
+            {
+              "origin": [
+                -3.2,
+                0,
+                -1.5
+              ],
+              "size": [
+                3,
+                3,
+                3
+              ],
+              "uv": [
+                106,
+                23
+              ]
+            }
+          ]
+        },
+        {
+          "name": "head",
+          "parent": "body",
+          "pivot": [
+            0,
+            16,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -2.5,
+                16,
+                -2.5
+              ],
+              "size": [
+                5,
+                7,
+                5
+              ],
+              "uv": [
+                92,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "name": "crown",
+          "parent": "head",
+          "pivot": [
+            0,
+            22.5,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -5,
+                22.5,
+                -5
+              ],
+              "size": [
+                10,
+                3,
+                10
+              ],
+              "uv": [
+                0,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -4,
+                25,
+                -3.5
+              ],
+              "size": [
+                8,
+                3,
+                8
+              ],
+              "uv": [
+                34,
+                23
+              ]
+            }
+          ]
+        },
+        {
+          "name": "blade",
+          "parent": "crown",
+          "pivot": [
+            0,
+            27.5,
+            0
+          ],
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -1.5,
+                27.5,
+                -1.5
+              ],
+              "size": [
+                3,
+                5,
+                3
+              ],
+              "uv": [
+                66,
+                23
+              ]
+            }
+          ]
+        },
+        {
+          "name": "olive_crown_left",
+          "parent": "crown",
+          "pivot": [
+            4.4,
+            23.7,
+            -3.4
+          ],
+          "cubes": [
+            {
+              "origin": [
+                3.4,
+                19.7,
+                -4.4
+              ],
+              "size": [
+                2,
+                4,
+                2
+              ],
+              "uv": [
+                102,
+                13
+              ]
+            }
+          ]
+        },
+        {
+          "name": "olive_crown_right",
+          "parent": "crown",
+          "pivot": [
+            -4.4,
+            23.7,
+            3.4
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -5.4,
+                19.7,
+                2.4
+              ],
+              "size": [
+                2,
+                4,
+                2
+              ],
+              "uv": [
+                110,
+                13
+              ]
+            }
+          ]
+        },
+        {
+          "name": "branch_fl",
+          "parent": "head",
+          "pivot": [
+            0,
+            22,
+            0
+          ],
+          "rotation": [
+            0,
+            40,
+            14
+          ],
+          "cubes": [
+            {
+              "origin": [
+                1.5,
+                21,
+                -1
+              ],
+              "size": [
+                9,
+                2,
+                2
+              ],
+              "uv": [
+                0,
+                34
+              ]
+            }
+          ]
+        },
+        {
+          "name": "frond_fl",
+          "parent": "branch_fl",
+          "pivot": [
+            10,
+            22,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                6.5,
+                20.4,
+                -4
+              ],
+              "size": [
+                9,
+                2,
+                8
+              ],
+              "uv": [
+                0,
+                13
+              ]
+            }
+          ],
+          "rotation": [
+            0,
+            0,
+            -20
+          ]
+        },
+        {
+          "name": "olive_fl",
+          "parent": "frond_fl",
+          "pivot": [
+            11.2,
+            21.2,
+            0.3
+          ],
+          "cubes": [
+            {
+              "origin": [
+                10.2,
+                17.2,
+                -0.7
+              ],
+              "size": [
+                2,
+                4,
+                2
+              ],
+              "uv": [
+                112,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "name": "branch_bl",
+          "parent": "head",
+          "pivot": [
+            0,
+            22,
+            0
+          ],
+          "rotation": [
+            0,
+            -40,
+            14
+          ],
+          "cubes": [
+            {
+              "origin": [
+                1.5,
+                21,
+                -1
+              ],
+              "size": [
+                9,
+                2,
+                2
+              ],
+              "uv": [
+                22,
+                34
+              ]
+            }
+          ]
+        },
+        {
+          "name": "frond_bl",
+          "parent": "branch_bl",
+          "pivot": [
+            10,
+            22,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                6.5,
+                20.4,
+                -4
+              ],
+              "size": [
+                9,
+                2,
+                8
+              ],
+              "uv": [
+                34,
+                13
+              ]
+            }
+          ],
+          "rotation": [
+            0,
+            0,
+            -20
+          ]
+        },
+        {
+          "name": "olive_bl",
+          "parent": "frond_bl",
+          "pivot": [
+            11.2,
+            21.2,
+            0.3
+          ],
+          "cubes": [
+            {
+              "origin": [
+                10.2,
+                17.2,
+                -0.7
+              ],
+              "size": [
+                2,
+                4,
+                2
+              ],
+              "uv": [
+                120,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "name": "branch_fr",
+          "parent": "head",
+          "pivot": [
+            0,
+            22,
+            0
+          ],
+          "rotation": [
+            0,
+            -40,
+            -14
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -10.5,
+                21,
+                -1
+              ],
+              "size": [
+                9,
+                2,
+                2
+              ],
+              "uv": [
+                44,
+                34
+              ]
+            }
+          ]
+        },
+        {
+          "name": "frond_fr",
+          "parent": "branch_fr",
+          "pivot": [
+            -10,
+            22,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -15.5,
+                20.4,
+                -4
+              ],
+              "size": [
+                9,
+                2,
+                8
+              ],
+              "uv": [
+                68,
+                13
+              ]
+            }
+          ],
+          "rotation": [
+            0,
+            0,
+            20
+          ]
+        },
+        {
+          "name": "olive_fr",
+          "parent": "frond_fr",
+          "pivot": [
+            -11.2,
+            21.2,
+            0.3
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -12.2,
+                17.2,
+                -0.7
+              ],
+              "size": [
+                2,
+                4,
+                2
+              ],
+              "uv": [
+                112,
+                6
+              ]
+            }
+          ]
+        },
+        {
+          "name": "branch_br",
+          "parent": "head",
+          "pivot": [
+            0,
+            22,
+            0
+          ],
+          "rotation": [
+            0,
+            40,
+            -14
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -10.5,
+                21,
+                -1
+              ],
+              "size": [
+                9,
+                2,
+                2
+              ],
+              "uv": [
+                66,
+                34
+              ]
+            }
+          ]
+        },
+        {
+          "name": "frond_br",
+          "parent": "branch_br",
+          "pivot": [
+            -10,
+            22,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -15.5,
+                20.4,
+                -4
+              ],
+              "size": [
+                9,
+                2,
+                8
+              ],
+              "uv": [
+                0,
+                23
+              ]
+            }
+          ],
+          "rotation": [
+            0,
+            0,
+            20
+          ]
+        },
+        {
+          "name": "olive_br",
+          "parent": "frond_br",
+          "pivot": [
+            -11.2,
+            21.2,
+            0.3
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -12.2,
+                17.2,
+                -0.7
+              ],
+              "size": [
+                2,
+                4,
+                2
+              ],
+              "uv": [
+                120,
+                6
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.oil_salvo",
+        "texture_width": 16,
+        "texture_height": 16,
+        "visible_bounds_width": 1,
+        "visible_bounds_height": 1,
+        "visible_bounds_offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "glob",
+          "pivot": [
+            0,
+            0,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -1.5,
+                -1.5,
+                -1.5
+              ],
+              "size": [
+                3,
+                3,
+                3
+              ],
+              "uv": [
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

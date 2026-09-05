@@ -1,0 +1,15 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:dragon_pulse",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/rayquaza/dragon_pulse" },
+      "geometry": { "default": "geometry.dragon_pulse" },
+      "animations": { "spin": "animation.dragon_pulse.spin" },
+      "scripts": { "animate": ["spin"] },
+      "particle_effects": { "trail": "minecraft:dragon_breath_trail" },
+      "render_controllers": ["controller.render.dragon_pulse"]
+    }
+  }
+}
