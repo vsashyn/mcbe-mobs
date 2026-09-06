@@ -1641,6 +1641,327 @@ write_png(os.path.join(ROOT, "pikachu_RP/textures/entity/minun/minus_spark.png")
           16, 16, sp)
 
 
+# ------------------------------------------------------------ gouging_fire.png
+# Gouging Fire is four materials and the read depends on keeping them apart:
+# brown fur over a cream underside, grey smoke lying the length of the back,
+# gold on the frill and the horns, and one red faceplate carrying the whole
+# expression. Slots are read back out of the geometry that owns them, the same
+# way Rayquaza's and Moltres's are, because 67 cubes is far more UV than a
+# hand-written table stays honest about.
+GF_FUR      = (140, 96, 56, A)
+GF_FUR_HI   = (172, 126, 80, A)
+GF_FUR_MID  = (124, 84, 49, A)
+GF_FUR_LO   = (108, 71, 40, A)
+GF_FUR_LO2  = (82, 53, 30, A)
+GF_CREAM    = (238, 226, 190, A)
+GF_CREAM_HI = (250, 243, 219, A)
+GF_CREAM_MID = (224, 210, 172, A)
+GF_CREAM_LO = (202, 188, 152, A)
+GF_SMOKE    = (178, 180, 188, A)
+GF_SMOKE_HI = (214, 216, 222, A)
+GF_SMOKE_LO = (144, 146, 155, A)
+GF_SMOKE_LO2 = (114, 116, 126, A)
+GF_PLATE    = (150, 152, 161, A)
+GF_PLATE_HI = (184, 186, 193, A)
+GF_PLATE_LO = (112, 114, 123, A)
+GF_GOLD     = (232, 182, 46, A)
+GF_GOLD_HI  = (253, 219, 108, A)
+GF_GOLD_LO  = (188, 140, 24, A)
+GF_GOLD_LO2 = (142, 101, 14, A)
+GF_RED      = (200, 40, 44, A)
+GF_RED_HI   = (234, 80, 72, A)
+GF_RED_LO   = (152, 25, 34, A)
+GF_GREEN    = (74, 168, 88, A)
+GF_GREEN_HI = (124, 208, 130, A)
+GF_GREEN_LO = (46, 122, 60, A)
+GF_BLUE     = (98, 192, 234, A)
+GF_BLUE_HI  = (198, 236, 252, A)
+GF_BLUE_LO  = (42, 116, 170, A)
+GF_CUFF     = (34, 30, 33, A)
+GF_CUFF_HI  = (60, 55, 60, A)
+GF_CLAW     = (208, 62, 48, A)
+GF_PAD      = (104, 68, 52, A)
+
+GF_GEO = json.load(open(os.path.join(
+    ROOT, "pikachu_RP/models/entity/gouging_fire.geo.json")))
+GF_BONES = {
+    b["name"]: [(c["uv"][0], c["uv"][1], *(int(n) for n in c["size"]))
+                for c in b.get("cubes", [])]
+    for g in GF_GEO["minecraft:geometry"]
+    if g["description"]["identifier"] == "geometry.gouging_fire"
+    for b in g["bones"]
+}
+
+gf = canvas(256, 256)
+
+
+def gf_box(bone, i=0, base=GF_FUR, top=None, bottom=None, back=None):
+    u, v, w, h, d = GF_BONES[bone][i]
+    return paint_box(gf, u, v, w, h, d, base, top=top, bottom=bottom, back=back)
+
+
+def gf_fur(bone, i=0, seed=0, base=GF_FUR):
+    """Fur: the flat colour, then a scatter of two darker tones over it.
+
+    A sixteen-wide box of one brown is cardboard at any distance. The scatter
+    is what stops that, and it has to be sparse: past about a fifth of the
+    pixels it stops reading as fur and starts reading as damage.
+    """
+    f = gf_box(bone, i, base, top=GF_FUR_HI, bottom=GF_FUR_LO2)
+    for n, (name, (x, y, w, h)) in enumerate(f.items()):
+        speckle(gf, x, y, w, h, GF_FUR_MID, seed + n * 7, 0.10)
+        speckle(gf, x, y, w, h, GF_FUR_LO, seed + 100 + n * 7, 0.05)
+    return f
+
+
+def gf_vapour(bone, i=0, seed=0):
+    """Smoke: lit along the top, heavy underneath, mottled everywhere.
+
+    Row 0 of an upright face is the top of the cube, so the ramp runs light to
+    dark down the rows and the mass reads as something the light falls on
+    rather than as a slab of stone.
+    """
+    u, v, w, h, d = GF_BONES[bone][i]
+    f = paint_box(gf, u, v, w, h, d, GF_SMOKE,
+                  top=GF_SMOKE_HI, bottom=GF_SMOKE_LO2)
+    for name in ("front", "back", "left", "right"):
+        x, y, fw, fh = f[name]
+        for r in range(fh):
+            t = r / max(fh - 1, 1)
+            rect(gf, x, y + r, fw, 1,
+                 tuple(int(GF_SMOKE_HI[k] + (GF_SMOKE_LO2[k] - GF_SMOKE_HI[k]) * t)
+                       for k in range(3)) + (A,))
+    for n, (name, (x, y, w, h)) in enumerate(f.items()):
+        speckle(gf, x, y, w, h, GF_SMOKE_HI, seed + n * 11, 0.16)
+        speckle(gf, x, y, w, h, GF_SMOKE_LO, seed + 200 + n * 11, 0.16)
+    return f
+
+
+def gf_band(f, rows, col, names=("front", "back", "left", "right")):
+    """Runs a band of rows all the way round a cube: a leg cuff, or the rim
+    of a plate. Rows are counted from the top of the cube down."""
+    for name in names:
+        x, y, fw, fh = f[name]
+        for r in rows:
+            if 0 <= r < fh:
+                rect(gf, x, y + r, fw, 1, col)
+
+
+# Body. Fur over the top and flanks, cream underneath and up the lower flank,
+# which is the line the artwork runs from the chin to between the hind legs.
+for i, seed in ((0, 4100), (1, 4200)):
+    bf = gf_fur("body", i, seed)
+    x, y, fw, fh = bf["bottom"]
+    rect(gf, x, y, fw, fh, GF_CREAM_LO)
+    for side in ("left", "right"):
+        x, y, fw, fh = bf[side]
+        rect(gf, x, y + fh - 2, fw, 2, GF_CREAM_LO)
+        rect(gf, x, y + fh - 3, fw, 1, GF_FUR_LO2)
+
+# The bib. Cream on every face but the top, which is where the neck sits on it.
+rf = gf_box("ruff", base=GF_CREAM, top=GF_FUR_LO, bottom=GF_CREAM_LO)
+for n, (name, (x, y, w, h)) in enumerate(rf.items()):
+    speckle(gf, x, y, w, h, GF_CREAM_HI, 4300 + n * 5, 0.09)
+    speckle(gf, x, y, w, h, GF_CREAM_MID, 4400 + n * 5, 0.07)
+x, y, fw, fh = rf["front"]
+rect(gf, x, y, fw, 1, GF_FUR_LO)
+
+# Neck: fur over the top, cream throat under it.
+nf = gf_fur("neck", seed=4500)
+x, y, fw, fh = nf["bottom"]
+rect(gf, x, y, fw, fh, GF_CREAM_LO)
+x, y, fw, fh = nf["front"]
+rect(gf, x, y + fh - 2, fw, 2, GF_CREAM_LO)
+
+# Skull. The cheeks carry the short green fur the eyes sit in, and the jaw
+# line under it is cream.
+hf = gf_fur("head", seed=4600)
+# The brow tuft has to land at the front of each cheek, and the two side faces
+# of a box-UV net run in opposite directions: on the +x face column 0 is the
+# nose, on the -x face column 0 is the back of the skull.
+for side, near in (("left", True), ("right", False)):
+    x, y, fw, fh = hf[side]
+    rect(gf, x, y + fh - 3, fw, 3, GF_CREAM_LO)
+    rect(gf, x + (1 if near else fw - 5), y + 2, 4, 2, GF_GREEN_LO)
+x, y, fw, fh = hf["front"]
+rect(gf, x, y + fh - 3, fw, 3, GF_CREAM_LO)
+rect(gf, x + 1, y + 2, fw - 2, 3, GF_GREEN_LO)
+x, y, fw, fh = hf["bottom"]
+rect(gf, x, y, fw, fh, GF_CREAM_LO)
+
+# The faceplate. The upright bar stands half a unit proud of the crossbar, so
+# the two are painted as separate plates rather than as one flat cross: the
+# upright gets the brighter red and a lit top, the crossbar the darker.
+up = gf_box("faceplate", 0, GF_RED, top=GF_RED_HI, bottom=GF_RED_LO)
+gf_band(up, (0,), GF_RED_HI)
+x, y, fw, fh = up["front"]
+rect(gf, x, y, 1, fh, GF_RED_LO)
+rect(gf, x + fw - 1, y, 1, fh, GF_RED_LO)
+rect(gf, x + 1, y + fh - 3, fw - 2, 1, GF_RED_LO)
+
+cross = gf_box("faceplate", 1, GF_RED_LO, top=GF_RED, bottom=GF_RED_LO)
+gf_band(cross, (0,), GF_RED)
+# Two roundels, green with a red pupil, set out on the arms clear of the
+# upright bar. Centred they would sit behind it and none of them would show.
+x, y, fw, fh = cross["front"]
+for cx in (1, fw - 5):
+    rect(gf, x + cx, y + 1, 4, 3, GF_GREEN)
+    rect(gf, x + cx + 1, y + 1, 2, 1, GF_GREEN_HI)
+    rect(gf, x + cx + 1, y + 2, 2, 1, GF_RED)
+    put(gf, x + cx + 1, y + 2, GF_RED_HI)
+
+# Muzzle: a grey plate with the dark horseshoe the artwork wears as a
+# moustache, and two nostrils punched in the top of it.
+mz = gf_box("muzzle", base=GF_PLATE, top=GF_PLATE_HI, bottom=GF_PLATE_LO)
+x, y, fw, fh = mz["front"]
+rect(gf, x, y + 1, 2, fh - 1, GF_PLATE_LO)
+rect(gf, x + fw - 2, y + 1, 2, fh - 1, GF_PLATE_LO)
+rect(gf, x + 2, y + fh - 1, fw - 4, 1, GF_PLATE_LO)
+rect(gf, x + 3, y + 1, fw - 6, 1, GF_PLATE_HI)
+x, y, fw, fh = mz["top"]
+put(gf, x + fw // 2 - 2, y + 1, GF_CUFF)
+put(gf, x + fw // 2 + 1, y + 1, GF_CUFF)
+
+# Eyes. The cube is a tuft of green fur and the eye is painted on its outward
+# face only, because that is the only face of it a player ever sees.
+for side in ("left", "right"):
+    ef = gf_box(f"eye_{side}", base=GF_GREEN_LO, top=GF_GREEN, bottom=GF_GREEN_LO)
+    x, y, fw, fh = ef["front"]
+    rect(gf, x, y, fw, fh, GF_GREEN)
+    rect(gf, x, y + 1, fw, fh - 2, GF_BLUE)
+    rect(gf, x, y + fh - 2, fw, 1, GF_BLUE_LO)
+    put(gf, x + fw - 1, y + 1, GF_BLUE_HI)
+
+# Frill: gold, brighter along the crown, with a dark rim where it meets the
+# skull so the plate reads as standing off the head rather than painted on it.
+fr = gf_box("frill", base=GF_GOLD, top=GF_GOLD_HI, bottom=GF_GOLD_LO2)
+for name in ("front", "back"):
+    x, y, fw, fh = fr[name]
+    rect(gf, x, y, fw, 1, GF_GOLD_HI)
+    rect(gf, x, y + fh - 2, fw, 2, GF_GOLD_LO)
+    for c in range(2, fw - 2, 4):
+        rect(gf, x + c, y + 1, 1, fh - 3, GF_GOLD_LO)   # ribs up the plate
+
+# Horns: dark at the root, hot yellow at the tip, so the fan reads as ten
+# horns and not as one gold mass.
+for side in ("left", "right"):
+    for i in range(5):
+        hn = gf_box(f"horn_{side}{i}", base=GF_GOLD, top=GF_GOLD_HI,
+                    bottom=GF_GOLD_LO2)
+        for name in ("front", "back", "left", "right"):
+            x, y, fw, fh = hn[name]
+            for r in range(fh):
+                t = r / max(fh - 1, 1)
+                rect(gf, x, y + r, fw, 1,
+                     tuple(int(GF_GOLD_HI[k] + (GF_GOLD_LO2[k] - GF_GOLD_HI[k]) * t)
+                           for k in range(3)) + (A,))
+
+# Fur strands, brown, with a gold cap on the end of each.
+for side in ("left", "right"):
+    for j in (0, 1):
+        gf_fur(f"strand_{side}{j}",
+               seed=4700 + j * 13 + (0 if side == "left" else 5),
+               base=GF_FUR_LO2)
+        tp = gf_box(f"strandtip_{side}{j}", base=GF_GOLD,
+                    top=GF_GOLD_HI, bottom=GF_GOLD_LO2)
+        gf_band(tp, (0,), GF_GOLD_HI)
+        gf_band(tp, (1,), GF_GOLD_LO)
+
+# Legs. Two black cuffs on each foreleg, one on each hind leg, which is the
+# count the artwork gives them.
+for side in ("left", "right"):
+    fl = gf_fur(f"foreleg_{side}", seed=4800 + (0 if side == "left" else 9))
+    gf_band(fl, (3,), GF_CUFF_HI)
+    gf_band(fl, (4, 5), GF_CUFF)
+    gf_band(fl, (8,), GF_CUFF_HI)
+    gf_band(fl, (9, 10), GF_CUFF)
+
+    hl = gf_fur(f"hindleg_{side}", seed=4850 + (0 if side == "left" else 9))
+    gf_band(hl, (4,), GF_CUFF_HI)
+    gf_band(hl, (5, 6), GF_CUFF)
+
+    for seg in ("foreshin", "hindshin"):
+        gf_fur(f"{seg}_{side}", seed=4900 + len(seg) + (0 if side == "left" else 3),
+               base=GF_FUR_LO)
+
+    # Paws are grey with brown pads on the sole, and the toes are cut into the
+    # front face rather than modelled: three cubes a paw is enough already.
+    for seg in ("forepaw", "hindpaw"):
+        pw = gf_box(f"{seg}_{side}", base=GF_PLATE, top=GF_PLATE_LO,
+                    bottom=GF_PAD)
+        x, y, fw, fh = pw["front"]
+        rect(gf, x, y, fw, fh, GF_PLATE_HI)
+        for c in range(2, fw - 1, 3):
+            rect(gf, x + c, y, 1, fh, GF_PLATE_LO)
+        x, y, fw, fh = pw["bottom"]
+        rect(gf, x + 1, y + 1, fw - 2, max(fh - 2, 1), GF_PAD)
+
+    for k in range(3):
+        gf_box(f"claw_{side}{k}", base=GF_CLAW, top=(240, 118, 96, A),
+               bottom=GF_RED_LO)
+    for k in range(3):
+        sp = gf_box(f"spur_{side}{k}", base=GF_GREEN, top=GF_GREEN_HI,
+                    bottom=GF_GREEN_LO)
+        gf_band(sp, (0,), GF_GREEN_HI)
+
+# The smoke, every link seeded off its own name so no two mottle alike.
+for n, bname in enumerate(sorted(GF_BONES)):
+    if bname.startswith(("smoke", "puff", "collar")):
+        gf_vapour(bname, seed=5000 + n * 17)
+
+# The five spikes riding the crest. Darker than the smoke on purpose: the same
+# grey and they disappear into it.
+for i in range(5):
+    sk = gf_box(f"spike{i}", base=(96, 98, 107, A), top=GF_PLATE,
+                bottom=(78, 80, 88, A))
+    gf_band(sk, (0, 1), GF_PLATE_LO)
+
+write_png(os.path.join(ROOT,
+          "pikachu_RP/textures/entity/gouging_fire/gouging_fire.png"),
+          256, 256, gf)
+
+# ------------------------------------------------------------ raging_fury.png
+# The bolt it spits: white-hot at the nose, cooling through orange to a dark
+# red tail, which is what a pillar of flame looks like once it is travelling.
+#
+# The ramp has to run nose to tail on every face, and the six faces of a box-UV
+# net do not agree on which way that is. On the top and bottom the length runs
+# down the rows and row 0 is the tail; on the +x face it runs along the columns
+# from the nose; on the -x face it runs along the columns from the tail. Get
+# one of them backwards and the bolt reads as flying rear-first.
+RG_RAMP = ((255, 238, 176, A), (253, 206, 82, A), (250, 158, 40, A),
+           (226, 92, 34, A), (176, 40, 34, A), (112, 22, 26, A))
+
+
+def rg_heat(t):
+    """Continuous ramp. Six flat bands read as a stack of coloured tiles; the
+    blend between them is what makes it read as one hot thing cooling off."""
+    t = min(max(t, 0.0), 0.999) * (len(RG_RAMP) - 1)
+    a, b, f = RG_RAMP[int(t)], RG_RAMP[min(int(t) + 1, len(RG_RAMP) - 1)], t % 1
+    return tuple(int(a[k] + (b[k] - a[k]) * f) for k in range(3)) + (A,)
+
+
+rg = canvas(32, 16)
+rgf = paint_box(rg, 0, 0, 4, 4, 8, RG_RAMP[3])
+for name, (x, y, w, h) in rgf.items():
+    if name in ("top", "bottom"):
+        for r in range(h):                       # row 0 is the tail
+            rect(rg, x, y + r, w, 1, rg_heat(1 - r / (h - 1)))
+    elif name in ("left", "right"):
+        for c in range(w):                       # +x runs nose first, -x tail
+            u = c / (w - 1)
+            rect(rg, x + c, y, 1, h, rg_heat(u if name == "left" else 1 - u))
+    else:
+        # The end caps get a ring rather than a flat fill: four pixels square
+        # of one colour is a painted square, and the nose is the face a player
+        # sees most of because the bolt flies at them.
+        rect(rg, x, y, w, h, rg_heat(0.35 if name == "front" else 0.9))
+        rect(rg, x + 1, y + 1, w - 2, h - 2,
+             rg_heat(0.0 if name == "front" else 0.7))
+write_png(os.path.join(ROOT,
+          "pikachu_RP/textures/entity/gouging_fire/raging_fury.png"), 32, 16, rg)
+
+
 # ------------------------------------------------------------- pack_icon.png
 def pack_icon(path):
     ic = canvas(16, 16)
@@ -1759,6 +2080,7 @@ OCCUPANTS = {
     "lapras": LAP,
     "minun": MIN_SKY,
     "plusle": PL_RED,
+    "gouging_fire": GF_RED,
 }
 
 

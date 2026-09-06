@@ -1,0 +1,15 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:raging_fury",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/gouging_fire/raging_fury" },
+      "geometry": { "default": "geometry.raging_fury" },
+      "animations": { "spin": "animation.raging_fury.spin" },
+      "scripts": { "animate": ["spin"] },
+      "particle_effects": { "trail": "minecraft:basic_flame_particle" },
+      "render_controllers": ["controller.render.raging_fury"]
+    }
+  }
+}

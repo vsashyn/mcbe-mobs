@@ -1,0 +1,47 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "pk:raging_fury",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "components": {
+      "minecraft:collision_box": { "width": 0.3, "height": 0.3 },
+      "minecraft:physics": {},
+      "minecraft:pushable": { "is_pushable": false, "is_pushable_by_piston": false },
+      "minecraft:conditional_bandwidth_optimization": {},
+      "minecraft:projectile": {
+        "power": 1.9,
+        "gravity": 0.02,
+        "inertia": 1.0,
+        "liquid_inertia": 0.85,
+        "uncertainty_base": 5,
+        "uncertainty_multiplier": 1,
+        "anchor": 1,
+        "offset": [0, -0.3, 0],
+        "shoot_sound": "mob.ghast.fireball",
+        "hit_sound": "random.fizz",
+        "shoot_target": true,
+        "should_bounce": false,
+        "on_hit": {
+          "impact_damage": {
+            "damage": 5,
+            "knockback": true,
+            "semi_random_diff_damage": false,
+            "destroy_on_hit": true
+          },
+          "catch_fire": { "fire_duration": 5 },
+          "particle_on_hit": {
+            "particle_type": "largeexplode",
+            "num_particles": 1,
+            "on_entity_hit": true,
+            "on_other_hit": true
+          },
+          "remove_on_hit": {}
+        }
+      }
+    }
+  }
+}

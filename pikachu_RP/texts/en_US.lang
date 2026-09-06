@@ -36,3 +36,7 @@ entity.pk:plusle.name=Plusle
 item.spawn_egg.entity.pk:plusle.name=Spawn Plusle
 item.pk:poke_ball_plusle.name=Poké Ball (Plusle)
 entity.pk:caught_plusle.name=Poké Ball (Plusle)
+entity.pk:gouging_fire.name=Gouging Fire
+item.spawn_egg.entity.pk:gouging_fire.name=Spawn Gouging Fire
+item.pk:poke_ball_gouging_fire.name=Poké Ball (Gouging Fire)
+entity.pk:caught_gouging_fire.name=Poké Ball (Gouging Fire)

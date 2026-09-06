@@ -31,6 +31,9 @@
     },
     "pk:poke_ball_minun": {
       "textures": "textures/items/poke_ball_minun"
+    },
+    "pk:poke_ball_gouging_fire": {
+      "textures": "textures/items/poke_ball_gouging_fire"
     }
   }
 }

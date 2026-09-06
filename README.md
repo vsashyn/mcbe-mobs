@@ -1,7 +1,7 @@
 # Pokémon add-on for Minecraft Bedrock
 
-A Minecraft Bedrock add-on with nine custom mobs and a Poké Ball that carries
-them. Every mob is tameable, eight of them fight with a custom projectile, and
+A Minecraft Bedrock add-on with ten custom mobs and a Poké Ball that carries
+them. Every mob is tameable, nine of them fight with a custom projectile, and
 all of them are built out of plain behavior and resource pack JSON with no
 scripting API and no experimental toggles.
 
@@ -16,6 +16,7 @@ scripting API and no experimental toggles.
 | Lapras | `pk:lapras` | 50 / 4 | 80 / 6 | Prismarine crystals, 22% | Ocean near the surface, frozen ocean most often, 1-2 |
 | Plusle | `pk:plusle` | 20 / 2 | 30 / 4 | Redstone, 30% a piece | Plains and savanna, daylight, pairs and threes |
 | Minun | `pk:minun` | 20 / 2 | 28 / 3 | Glow berries, 30% a handful | Plains and savanna, daylight, groups of 1-3 |
+| Gouging Fire | `pk:gouging_fire` | 130 / 9 | 180 / 13 | Fire charge, 24% a charge | Badlands, desert and savanna surface, light 7 and up, alone and rare |
 
 The folders, the pack names and the built `.mcaddon` still say Pikachu, from
 when it was the only mob here.
@@ -24,7 +25,7 @@ when it was the only mob here.
 
 - [Platform](#platform)
 - [Installing](#installing)
-- [Mobs](#mobs), one section each for [Pikachu](#pikachu), [Arboliva](#arboliva), [Black Rayquaza](#black-rayquaza), [Kleavor](#kleavor), [Squirtle](#squirtle), [Galarian Moltres](#galarian-moltres), [Lapras](#lapras), [Plusle](#plusle), [Minun](#minun), and the [projectiles](#projectiles) they shoot
+- [Mobs](#mobs), one section each for [Pikachu](#pikachu), [Arboliva](#arboliva), [Black Rayquaza](#black-rayquaza), [Kleavor](#kleavor), [Squirtle](#squirtle), [Galarian Moltres](#galarian-moltres), [Lapras](#lapras), [Plusle](#plusle), [Minun](#minun), [Gouging Fire](#gouging-fire), and the [projectiles](#projectiles) they shoot
 - [Items](#items), covering the [Poké Ball](#poké-ball), [full balls](#full-poké-balls), [spawn eggs](#spawn-eggs), [how catching works](#how-catching-works)
 - [Repository layout](#repository-layout)
 - [Building](#building)
@@ -488,6 +489,62 @@ four in five.
 
 On death it drops 0-2 redstone, or one lapis lazuli.
 
+### Gouging Fire
+
+`pk:gouging_fire` is the Paradox Pokémon, the thing out of Area Zero that looks
+like Entei rebuilt from a fossil. It is the biggest four-legged mob in the
+pack, three blocks to the tip of its crown and four and a half nose to tail,
+and the first one you can ride on the ground.
+
+The build is a lion on a ceratopsian skull. A heavy barrel over four short
+columns, a cream bib down the chest and a cream keel under the flank, a black
+cuff round every leg and three green spurs down each hind one. The head carries
+a red four-pointed faceplate with a green-and-red roundel out on each arm, blue
+eyes in green fur above it, and a grey plate over the muzzle. Behind all that a
+gold frill rakes back over the neck with five horns swept off each side of it,
+and a brown fur strand with a gold cap hangs either side of the jaw. Grey smoke
+lies the whole length of its back with five spikes riding the crest, and trails
+off past the rump like a tail. Sixty-seven cubes, thirteen of them smoke.
+
+Wild Gouging Fire spawn alone and rarely, on the surface of badlands, desert
+and savanna, and only where the light is 7 or brighter. Its hitbox is 1.8 by
+2.6 wrapped around the body alone, so the crown and the smoke overhang it the
+way Arboliva's canopy does.
+
+Raging Fury is the attack. Three bolts 0.25 seconds apart, 5 damage each and
+five seconds alight, from 6 to 20 blocks. Inside six blocks it stops shooting
+and rears instead, and the roar is a real wind-up, 0.9 seconds back onto the
+hind legs and then down through the faceplate, timed against
+`minecraft:behavior.delayed_attack` so the hit lands on the slam.
+
+Burning Bulwark is its signature move, and here it is a punishment rather than
+a shield you press. Hit it in melee and its fur superheats for four seconds:
+`minecraft:area_attack` burns anything within a block of it until the window
+runs out, and the owner is filtered out of that. Keep your distance and it
+never fires.
+
+Protosynthesis does two things. In daylight under a clear sky the mob takes 30%
+less of everything and moves half a step faster, which is the Defense boost the
+games give it, Defense being its highest stat. It also goes on the rampage the
+Pokédex describes, hunting any player inside 16 blocks it can see. Let the sun
+go down or the rain start and both switch off together. A tamed one keeps the
+boost and never gets the rampage.
+
+Fire and Dragon costs and pays the usual way. It is immune to fire, lava and
+magma blocks, shrugs off half a fall, and takes double from freezing and
+drowning.
+
+Taming costs a fire charge, which has a 24% chance to bond per charge. A tamed
+Gouging Fire carries 180 health and 13 attack damage instead of 130 and 9,
+defends its owner, teleports to keep up, heals from fire charges and coal, and
+is the only mob here you ride over ground. Interact without sneaking to mount,
+and `minecraft:input_ground_controlled` puts WASD and the mouse in charge. It
+does not breed. The games put it in the Undiscovered egg group and give it no
+gender, so nothing here does either.
+
+On death it drops 2-4 magma cream, plus coal or, one roll in four, the fire
+charge back.
+
 ### Projectiles
 
 Every projectile is a full entity with its own model, texture and flight
@@ -506,6 +563,7 @@ it.
 | Spark | `pk:spark` | Plusle | 3 | 3 to 12 | One plus-shaped bolt, no gravity, knockback |
 | Spark, Plus | `pk:spark_plus` | Plusle with a player or a Minun inside 6 blocks | 6 | 3 to 12 | The same bolt, faster and dead straight |
 | Spark | `pk:minus_spark` | Minun | 4 | up to 12 | One bolt, no gravity, no knockback, 3s slowness 2 |
+| Raging Fury | `pk:raging_fury` | Gouging Fire | 5 each | 6 to 20 | Three bolts 0.25s apart, 5s alight |
 
 ## Items
 
@@ -529,7 +587,8 @@ A ball that hits a Pokémon either catches it or is wasted. A tamed one always
 goes in, since it is already yours. A wild one resists, and the odds track the
 species' catch rate in the games. Plusle goes in four times in five, Minun
 thirteen times in twenty, Arboliva and Squirtle three times in five, Kleavor
-one in two, Lapras two in five, and Galarian Moltres and Rayquaza one in five.
+one in two, Lapras two in five, Galarian Moltres and Rayquaza one in five,
+and Gouging Fire one in six.
 A ball that misses, hits a block, or fails to hold is gone.
 
 Pikachu is the exception right now. Its `pk:on_captured` skips the roll and
@@ -554,6 +613,7 @@ pick it up as an item, named for its occupant.
 | Poké Ball (Lapras) | `pk:poke_ball_lapras` | `pk:caught_lapras` | 1 |
 | Poké Ball (Plusle) | `pk:poke_ball_plusle` | `pk:caught_plusle` | 1 |
 | Poké Ball (Minun) | `pk:poke_ball_minun` | `pk:caught_minun` | 1 |
+| Poké Ball (Gouging Fire) | `pk:poke_ball_gouging_fire` | `pk:caught_gouging_fire` | 1 |
 
 Throw a full ball and the Pokémon comes out a third of a second later, wherever
 the ball got to, tamed to whoever threw it.
@@ -569,7 +629,8 @@ it in the creative inventory.
 
 `pk:pikachu_spawn_egg`, `pk:arboliva_spawn_egg`, `pk:rayquaza_spawn_egg`,
 `pk:kleavor_spawn_egg`, `pk:squirtle_spawn_egg`, `pk:moltres_spawn_egg`,
-`pk:lapras_spawn_egg`, `pk:plusle_spawn_egg`, `pk:minun_spawn_egg`.
+`pk:lapras_spawn_egg`, `pk:plusle_spawn_egg`, `pk:minun_spawn_egg`,
+`pk:gouging_fire_spawn_egg`.
 
 ### How catching works
 
@@ -636,6 +697,8 @@ pikachu_BP/                           behavior pack
   entities/spark_plus.json            the same bolt at double damage, once Plus is up
   entities/minun.json                 stats, AI, taming, breeding, rain shelter, cheering
   entities/minus_spark.json           the bolt Minun shoots
+  entities/gouging_fire.json          stats, AI, taming, riding, Protosynthesis, Bulwark
+  entities/raging_fury.json           the bolt Gouging Fire shoots, three at a time
   entities/poke_ball_thrown.json      the ball in flight; catches what it hits
   entities/poke_ball_*_thrown.json    a full ball, turns back into its mob
   entities/caught_*.json              a ball on the ground, waiting to be picked up
@@ -654,6 +717,7 @@ pikachu_RP/                           resource pack
   models/entity/lapras.geo.json       22 bones, 33 cubes, 128x128, plus the shard
   models/entity/plusle.geo.json       13 bones, 15 cubes, 64x64, plus the spark
   models/entity/minun.geo.json        18 bones, 20 cubes, 64x64, plus the bolt
+  models/entity/gouging_fire.geo.json 65 bones, 67 cubes, 256x256, plus the bolt
   models/entity/poke_ball.geo.json    five cubes on a 32x32 sheet, one bone
   textures/entity/*/*.png
   animations/pikachu.animation.json   idle, quadruped run, sit, head tracking, spark
@@ -665,6 +729,8 @@ pikachu_RP/                           resource pack
   animations/lapras.animation.json    idle, crawl, swim, rest, head tracking
   animations/plusle.animation.json    idle, walk, cheer, sit, head tracking, crackle
   animations/minun.animation.json     idle, walk, cheer, sit, head tracking, arc
+  animations/gouging_fire.animation.json
+                                      idle, walk, roar, smoke, head tracking, spin
   animations/poke_ball.animation.json spin in flight, bob at rest
   textures/items/*.png                inventory icons, 16x16
   textures/item_texture.json          maps an icon name onto its png
@@ -681,6 +747,9 @@ tools/gen_plusle.py                   lays out Plusle's 15 cubes and shelf-packs
                                       UV; run it before gen_textures.py
 tools/gen_minun.py                    lays out Minun's 20 cubes and shelf-packs its
                                       UV; run it before gen_textures.py
+tools/gen_gouging_fire.py             lays out Gouging Fire's 67 cubes, shelf-packs
+                                      its UV and writes its clips; run it before
+                                      gen_textures.py
 tools/gen_textures.py                 redraws every png; edit here, not in an image editor
                                       Arboliva's is painted off its .geo.json
 tools/validate.py                     catches broken references before the game does
@@ -699,6 +768,7 @@ python3 tools/bump_version.py 1.2.0
 python3 tools/gen_textures.py
 python3 tools/gen_rayquaza.py   # run before gen_textures.py when the model moves
 python3 tools/gen_minun.py      # same for Minun
+python3 tools/gen_gouging_fire.py   # same for Gouging Fire
 ```
 
 Textures are generated, not painted. `gen_textures.py` redraws every `.png` in
@@ -1141,6 +1211,40 @@ sine at 420, and `minecraft:electric_spark_particle` fires at 0.1 and 0.6.
 Walking or sitting wins over the cheer, so it only ever happens standing
 still.
 
+### Gouging Fire's smoke
+
+The smoke is the one clip in the pack that runs alongside the others rather
+than instead of them. `scripts.animate` plays `smoke` next to whichever state
+the move controller picked, and nothing but that clip touches the nine bones it
+drives, so the two never fight over a bone. That is what keeps the smoke moving
+while the mob stands still and while it rears to roar.
+
+Each of the six links is parented to the one in front of it, lags that one by
+46 degrees and swings a little wider, so a nudge at the shoulder arrives at the
+tip as a roll instead of six boxes agreeing. The vertical term runs at twice
+the frequency of the sway, because smoke rises faster than it wanders, and each
+link also breathes on `scale` between about 0.94 and 1.06 on a third clock
+again. Three clocks that share no common period is what stops the loop reading
+as a loop.
+
+The five back spikes are parented to the smoke rather than to the spine under
+it, so they billow for free. Sunk into the spine they would not be visible at
+all: the smoke is thirteen units wide and a spike is three, and nothing of them
+survives from any angle except dead side-on.
+
+### Gouging Fire's gait
+
+The walk is a diagonal gait. The near foreleg swings with the far hind leg,
+half a cycle apart, and each shin trails its own thigh by a quarter cycle,
+which folds the leg on the way through and straightens it on the way down.
+
+The two pairs fold opposite ways, and that is the single thing that decides
+whether a four-legged walk reads as four-legged. A foreleg breaks at the elbow,
+which sits behind the leg, so its shin swings back as the paw lifts. A hind leg
+breaks at the hock, which points the other way, so its shin swings forward
+under the body. Fold both the same way and the mob reads as four legs on one
+hinge.
+
 ## Known gaps
 
 No custom sounds. Adding them means shipping `.ogg` files plus a
@@ -1167,6 +1271,20 @@ swapping `minecraft:type_family` to carry a `torrent` family that the sensor
 then tests for. That guard is the part most likely to be wrong, and the symptom
 would be the component group being re-added every tick rather than once. The
 withdraw pose is also the only place in the pack that animates bone `scale`.
+
+Gouging Fire is untested in game, and two things on it are the ones to watch.
+Burning Bulwark is the only use of `minecraft:area_attack` in the pack, and
+`damage_per_tick` means what it says, so anything that stands inside the mob for
+the whole four-second window takes a great deal. `damage_range` is 1.0 measured
+from the entity's centre, inside a hitbox 1.8 wide, which should keep the burn
+to whoever is hugging it, but that reach is the number to check first if the
+bulwark turns out to be either harmless or lethal. Protosynthesis is wired the
+way Squirtle's Torrent and Moltres's Berserk are, an environment sensor guarded
+by a `proto` family swapped into `minecraft:type_family`, and it carries the
+same risk of the group being re-added every tick if the guard does not hold. It
+is also the only mob here whose hostility switches with the weather, and the
+only ground mount, so `minecraft:input_ground_controlled` on a mob this size is
+untried.
 
 Moltres is untested in game. Berserk is wired the same way as Squirtle's
 Torrent, an `minecraft:environment_sensor` on `actor_health` guarded by a

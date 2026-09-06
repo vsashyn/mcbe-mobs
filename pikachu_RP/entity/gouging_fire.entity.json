@@ -1,0 +1,24 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:gouging_fire",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/gouging_fire/gouging_fire" },
+      "geometry": { "default": "geometry.gouging_fire" },
+      "animations": {
+        "idle": "animation.gouging_fire.idle",
+        "walk": "animation.gouging_fire.walk",
+        "roar": "animation.gouging_fire.roar",
+        "smoke": "animation.gouging_fire.smoke",
+        "look_at_target": "animation.gouging_fire.look_at_target",
+        "move": "controller.animation.gouging_fire.move"
+      },
+      "scripts": {
+        "animate": ["smoke", "look_at_target", "move"]
+      },
+      "render_controllers": ["controller.render.gouging_fire"],
+      "spawn_egg": { "base_color": "#8c6038", "overlay_color": "#c8282c" }
+    }
+  }
+}
