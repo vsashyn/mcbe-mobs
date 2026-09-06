@@ -185,6 +185,28 @@ ICE_HI     = (238, 252, 255, A)
 ICE_LO     = (104, 172, 218, A)
 
 
+# Plusle is two materials and no third: a pale cream body, and the red of its
+# ears, hands, tail and cheek pouches. The plus inside each pouch is painted
+# in the body cream rather than in a lighter red, because a near colour
+# vanishes at mob scale and that plus is the one mark that tells it apart.
+PL_CREAM     = (244, 236, 176, A)
+PL_CREAM_HI  = (253, 249, 214, A)
+PL_CREAM_LO  = (214, 203, 140, A)
+PL_CREAM_LO2 = (180, 168, 110, A)
+PL_BELLY     = (231, 218, 152, A)
+PL_RED       = (188, 70, 72, A)
+PL_RED_HI    = (216, 100, 98, A)
+PL_RED_LO    = (150, 52, 56, A)
+PL_RED_LO2   = (116, 40, 44, A)
+PL_EYE       = (36, 30, 34, A)
+PL_MOUTH     = (118, 48, 64, A)
+PL_TONGUE    = (206, 112, 132, A)
+PL_NOSE      = (198, 156, 88, A)
+PL_SPARK     = (255, 228, 128, A)
+PL_SPARK_HI  = (255, 252, 226, A)
+PL_SPARK_LO  = (206, 96, 74, A)
+
+
 def faces(u, v, w, h, d):
     """Minecraft box-UV net: (x, y, w, h) per face."""
     return {
@@ -1241,6 +1263,384 @@ for name in wf:
 write_png(os.path.join(ROOT,
           "pikachu_RP/textures/entity/moltres/fiery_wrath.png"), 16, 16, fw_tex)
 
+# ----------------------------------------------------------------- plusle.png
+# Painted off the model, the same way arboliva, kleavor, squirtle and lapras
+# are, so the slots cannot drift out of step with models/entity/plusle.geo.json.
+#
+# Almost every cube on Plusle is one flat cream, which is a problem: a mob
+# painted in one colour reads as a lump. What separates the parts is a lit row
+# along the top of every side face and a shaded row along the bottom, so each
+# box carries its own top and bottom edge and the joints show up as seams.
+#
+# The paint functions take the bone name because the ears need it. An ear's
+# inner face is its -x side on the left of the mob and its +x side on the
+# right, and the box-UV net calls those "right" and "left" respectively, so
+# which one to darken is not recoverable from the UV slot alone.
+PL_GEO = os.path.join(ROOT, "pikachu_RP/models/entity/plusle.geo.json")
+plu = next(g for g in json.load(open(PL_GEO))["minecraft:geometry"]
+           if g["description"]["identifier"] == "geometry.plusle")
+tex = canvas(plu["description"]["texture_width"],
+             plu["description"]["texture_height"])
+
+
+def hide(u, v, w, h, d, seed, name=""):
+    """Cream body: lit along the top rim of every side, shaded along the
+    bottom. This is the base every other Plusle painter starts from."""
+    f = paint_box(tex, u, v, w, h, d, PL_CREAM,
+                  top=PL_CREAM_HI, bottom=PL_CREAM_LO2)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, PL_CREAM_HI)
+        rect(tex, x, y + fh - 1, fw, 1, PL_CREAM_LO)
+    return f
+
+
+def torso(u, v, w, h, d, seed, name=""):
+    """The body, with the darker cream belly on the front. The belly stops one
+    pixel short of every edge so the lit and shaded rims survive it, which is
+    what keeps the torso from flattening into a single field of cream."""
+    f = hide(u, v, w, h, d, seed)
+    x, y, fw, fh = f["front"]
+    rect(tex, x + 1, y + 2, fw - 2, fh - 3, PL_BELLY)
+    rect(tex, x + 1, y + 2, fw - 2, 1, PL_CREAM_LO)
+    return f
+
+
+def mien(u, v, w, h, d, seed, name=""):
+    """The face: two tall eyes, a nose, an open mouth and a plus in each cheek.
+
+    Nine columns across eight rows, and the cheeks decide the layout. Plusle's
+    pouch is a red disc with a pale plus inside it, and three pixels square is
+    not enough for both: a cream cross through a 3x3 red block leaves four
+    single red pixels at the corners, which at mob scale is not a pouch, it is
+    four specks of noise. So the mark here is the plus itself, drawn in red on
+    the bare cream cheek. Five pixels, unmistakable, and it survives being seen
+    from ten blocks away.
+
+    The other rule is that the bar of each plus and the mouth may not share a
+    row. They did in the first cut, and nine columns of red-dark-red across the
+    middle of the face read as one bar rather than as two cheeks and a smile.
+    The bars sit one row above the mouth, which is what leaves a clear cream
+    row between them."""
+    f = hide(u, v, w, h, d, seed)
+    x, y, fw, fh = f["front"]
+    mid = fw // 2
+
+    def p(c, r, col):
+        put(tex, x + c, y + r, col)
+
+    rect(tex, x, y, fw, 1, PL_CREAM_HI)                 # brow catches the light
+    for c0 in (1, fw - 3):                              # eyes, three rows tall
+        for c in range(c0, c0 + 2):
+            for r in (1, 2, 3):
+                p(c, r, PL_EYE)
+        p(c0, 1, WHT)                                   # both glints one way,
+    p(mid, fh - 4, PL_NOSE)                             # as one light source
+    rect(tex, x + mid - 1, y + fh - 2, 3, 1, PL_MOUTH)  # the open smile
+    p(mid, fh - 1, PL_TONGUE)
+    for c0 in (0, fw - 3):                              # a plus in each cheek
+        rect(tex, x + c0, y + fh - 3, 3, 1, PL_RED)
+        p(c0 + 1, fh - 4, PL_RED)
+        p(c0 + 1, fh - 2, PL_RED)
+        p(c0 + 1, fh - 3, PL_RED_HI)                    # lit at the crossing
+    x, y, fw, fh = f["bottom"]                          # under the jaw
+    rect(tex, x, y, fw, fh, PL_CREAM_LO)
+    return f
+
+
+def mitt(u, v, w, h, d, seed, name=""):
+    """An arm. Cream to the elbow, red from there down, because the hands are
+    the only red Plusle carries below the head and losing them costs the whole
+    front view its colour."""
+    f = hide(u, v, w, h, d, seed)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y + fh - 2, fw, 2, PL_RED)
+        rect(tex, x, y + fh - 2, fw, 1, PL_RED_HI)
+    x, y, fw, fh = f["bottom"]
+    rect(tex, x, y, fw, fh, PL_RED_LO)
+    return f
+
+
+def paw(u, v, w, h, d, seed, name=""):
+    """A foot. Cream with a dark sole, so a Plusle standing on grass has a
+    line under it rather than melting into the block."""
+    f = hide(u, v, w, h, d, seed)
+    x, y, fw, fh = f["bottom"]
+    rect(tex, x, y, fw, fh, PL_CREAM_LO2)
+    return f
+
+
+def blade(u, v, w, h, d, seed, name=""):
+    """One link of an ear. Red outside, a shade darker on the inner face so
+    the pair reads as two blades turned toward each other rather than as two
+    flat cutouts. The tip link is lightened along its top rim instead, which
+    is the only thing keeping a fourteen-degree bend visible at distance."""
+    f = paint_box(tex, u, v, w, h, d, PL_RED, top=PL_RED_HI, bottom=PL_RED_LO2)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, PL_RED_HI)
+        rect(tex, x, y + fh - 1, fw, 1, PL_RED_LO)
+    x, y, fw, fh = f["right" if "left" in name else "left"]
+    rect(tex, x, y, fw, fh, PL_RED_LO)
+    rect(tex, x, y, fw, 1, PL_RED)
+    return f
+
+
+def cross(u, v, w, h, d, seed, name=""):
+    """One bar of the tail. Lit down the middle of every long face rather than
+    along an edge: the plus is seen end-on as often as flat, and a bar shaded
+    only at its rim goes solid the moment it turns."""
+    f = paint_box(tex, u, v, w, h, d, PL_RED, top=PL_RED_HI, bottom=PL_RED_LO2)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, PL_RED_LO)
+        rect(tex, x, y + fh - 1, fw, 1, PL_RED_LO2)
+        if fw > 2:
+            rect(tex, x + 1, y + fh // 2, fw - 2, 1, PL_RED_HI)
+    return f
+
+
+PL_MATERIAL = (
+    ("head", mien),
+    ("body", torso),
+    ("arm", mitt),
+    ("leg", paw),
+    ("ear_base", hide),
+    ("ear", blade),
+    ("tail", cross),
+)
+
+for bone in plu["bones"]:
+    paint = next(fn for pre, fn in PL_MATERIAL if bone["name"].startswith(pre))
+    for i, cube in enumerate(bone.get("cubes", [])):
+        u, v = cube["uv"]
+        w, h, d = (int(n) for n in cube["size"])
+        paint(u, v, w, h, d, u + v + i, bone["name"])
+
+write_png(os.path.join(ROOT, "pikachu_RP/textures/entity/plusle/plusle.png"),
+          plu["description"]["texture_width"],
+          plu["description"]["texture_height"], tex)
+
+# ----------------------------------------------------------------- spark.png
+# Two bars on one 32x16 sheet, laid out to match geometry.spark. Bright core,
+# red only on the four end caps, because these bars are two and three units
+# thick and an edge line on a two-pixel face is the whole face: the first cut
+# rimmed every side and the spark came out a rusty cross instead of a spark.
+sk = canvas(32, 16)
+for u, w, hh, dd, caps in ((0, 2, 6, 2, ("top", "bottom")),
+                           (8, 6, 2, 3, ("right", "left"))):
+    bf = paint_box(sk, u, 0, w, hh, dd, PL_SPARK,
+                   top=PL_SPARK_HI, bottom=PL_SPARK_HI)
+    for name in caps:                       # red tips with a hot centre, so
+        x, y, fw, fh = bf[name]             # the arms end rather than stop
+        rect(sk, x, y, fw, fh, PL_SPARK_LO)
+        rect(sk, x + fw // 2 - (fw + 1) % 2, y, 2 - fw % 2, fh, PL_SPARK)
+    for name in SIDES:
+        x, y, fw, fh = bf[name]
+        if fh >= 3:
+            rect(sk, x, y, fw, 1, PL_SPARK_HI)
+            rect(sk, x, y + fh - 1, fw, 1, PL_SPARK_LO)
+        elif fw >= 3:
+            rect(sk, x, y, 1, fh, PL_SPARK_LO)
+            rect(sk, x + fw - 1, y, 1, fh, PL_SPARK_LO)
+write_png(os.path.join(ROOT, "pikachu_RP/textures/entity/plusle/spark.png"),
+          32, 16, sk)
+
+
+# ------------------------------------------------------------------ minun.png
+# Read off the model, the same way arboliva, kleavor, squirtle and lapras are.
+#
+# Minun is two colours and nothing else: a cream body and the blue that marks
+# it out as the minus half of the pair. The blue only ever lands on four
+# things, the ears, the cheek discs, the paws and the tail bar, so every one
+# of them has to carry its share of the read. The cheek disc is the only place
+# the minus sign itself is drawn, one cream row cut across three blue ones.
+MIN_CREAM     = (243, 235, 184, A)
+MIN_CREAM_HI  = (251, 245, 211, A)
+MIN_CREAM_LO  = (222, 212, 156, A)
+MIN_CREAM_LO2 = (196, 185, 130, A)
+MIN_BELLY     = (250, 244, 208, A)
+MIN_SKY       = (133, 186, 224, A)
+MIN_SKY_HI    = (176, 213, 238, A)
+MIN_SKY_LO    = (108, 160, 202, A)
+MIN_SKY_LO2   = (86, 133, 178, A)
+MIN_EYE       = (32, 40, 66, A)
+MIN_EYE_HI    = (62, 78, 118, A)
+MIN_NOSE      = (198, 184, 136, A)
+MIN_MOUTH     = (166, 148, 104, A)
+MIN_BOLT      = (198, 232, 255, A)
+MIN_BOLT_HI   = (255, 255, 255, A)
+MIN_BOLT_LO   = (96, 168, 226, A)
+
+MI_GEO = os.path.join(ROOT, "pikachu_RP/models/entity/minun.geo.json")
+mun = next(g for g in json.load(open(MI_GEO))["minecraft:geometry"]
+           if g["description"]["identifier"] == "geometry.minun")
+tex = canvas(mun["description"]["texture_width"],
+             mun["description"]["texture_height"])
+
+
+def fur(u, v, w, h, d, i):
+    """Cream hide: lit along the top rim of every side, shaded along the
+    bottom, which is all the modelling a two-colour mob can take before the
+    shading starts competing with the markings."""
+    f = paint_box(tex, u, v, w, h, d, MIN_CREAM,
+                  top=MIN_CREAM_HI, bottom=MIN_CREAM_LO2)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, MIN_CREAM_HI)
+        rect(tex, x, y + fh - 1, fw, 1, MIN_CREAM_LO)
+    return f
+
+
+def torso(u, v, w, h, d, i):
+    """The body, with the paler belly patch the artwork puts on the front."""
+    f = fur(u, v, w, h, d, i)
+    x, y, fw, fh = f["front"]
+    rect(tex, x + 1, y + 2, fw - 2, fh - 2, MIN_BELLY)
+    return f
+
+
+def visage(u, v, w, h, d, i):
+    """The face. Two round black eyes set wide, a dot of a nose and a mouth
+    two texels across, all of it above the cheek discs, which are their own
+    cubes and would cover anything painted lower."""
+    f = fur(u, v, w, h, d, i)
+    x, y, fw, fh = f["front"]
+
+    def px(c, r, col):
+        put(tex, x + c, y + r, col)
+
+    for c in range(fw):
+        px(c, 0, MIN_CREAM_HI)                     # brow catches the light
+    for c0, glint in ((1, 1), (5, 6)):             # eyes, glints turned out
+        for c in (c0, c0 + 1):
+            for r in (1, 2):
+                px(c, r, MIN_EYE)
+        px(glint, 1, MIN_BOLT_HI)
+    px(3, 3, MIN_NOSE)                             # a nose two texels wide
+    px(4, 3, MIN_NOSE)
+    px(3, 4, MIN_MOUTH)                            # and a mouth two across
+    px(4, 4, MIN_MOUTH)
+    rect(tex, x, y + fh - 1, fw, 1, MIN_CREAM_LO)  # jaw
+    return f
+
+
+def cheek(u, v, w, h, d, i):
+    """The minus itself: a blue disc with one cream row cut across it. Three
+    texels is the smallest square that can hold a bar and still show blue
+    above and below it, which is why the cube is 3x3 and not 2x2."""
+    f = paint_box(tex, u, v, w, h, d, MIN_SKY,
+                  top=MIN_SKY_HI, bottom=MIN_SKY_LO2)
+    for name in f:
+        x, y, fw, fh = f[name]
+        rect(tex, x, y, fw, 1, MIN_SKY_HI)
+        rect(tex, x, y + fh - 1, fw, 1, MIN_SKY_LO)
+    x, y, fw, fh = f["front"]
+    rect(tex, x, y, fw, fh, MIN_SKY)
+    rect(tex, x, y + fh // 2, fw, 1, MIN_CREAM)    # the sign
+    return f
+
+
+def blade(u, v, w, h, d, i, name=""):
+    """An ear link. Blue with a lit leading edge and a darker rim down both
+    sides, so a paddle four texels wide does not read as a flat sticker. The
+    top link loses its two upper corners to the rim colour, which is the only
+    way to round off an ear tip that is three texels across."""
+    f = paint_box(tex, u, v, w, h, d, MIN_SKY,
+                  top=MIN_SKY_HI, bottom=MIN_SKY_LO)
+    for face in ("front", "back"):
+        x, y, fw, fh = f[face]
+        rect(tex, x, y, 1, fh, MIN_SKY_LO)
+        rect(tex, x + fw - 1, y, 1, fh, MIN_SKY_LO)
+        rect(tex, x + 1, y, fw - 2, 1, MIN_SKY_HI)
+        if name.endswith("_tip"):
+            put(tex, x, y, MIN_SKY_LO2)
+            put(tex, x + fw - 1, y, MIN_SKY_LO2)
+    for side in ("right", "left"):
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, fh, MIN_SKY_LO)        # the ear seen edge on
+    return f
+
+
+def foreleg(u, v, w, h, d, i):
+    """Arm, then paw. The bone carries both cubes so the blue mitten needs no
+    joint of its own; cube 0 is the cream arm and cube 1 is the paw."""
+    if i == 0:
+        return fur(u, v, w, h, d, i)
+    f = paint_box(tex, u, v, w, h, d, MIN_SKY,
+                  top=MIN_SKY_HI, bottom=MIN_SKY_LO2)
+    for side in SIDES:
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, 1, MIN_SKY_HI)
+        rect(tex, x, y + fh - 1, fw, 1, MIN_SKY_LO2)
+    return f
+
+
+def foot(u, v, w, h, d, i):
+    """A leg with a sole dark enough to read as a foot rather than more leg."""
+    f = fur(u, v, w, h, d, i)
+    x, y, fw, fh = f["bottom"]
+    rect(tex, x, y, fw, fh, MIN_CREAM_LO2)
+    return f
+
+
+def minus_bar(u, v, w, h, d, i):
+    """The tail bar. Solid blue with a pale core row, because at two texels
+    tall the bar needs an inside and an outside to read as a sign rather than
+    a stick."""
+    f = paint_box(tex, u, v, w, h, d, MIN_SKY,
+                  top=MIN_SKY_HI, bottom=MIN_SKY_LO2)
+    for name in ("front", "back", "top"):
+        x, y, fw, fh = f[name]
+        rect(tex, x, y, fw, 1, MIN_SKY_HI)
+    for side in ("right", "left"):
+        x, y, fw, fh = f[side]
+        rect(tex, x, y, fw, fh, MIN_SKY_LO)
+    return f
+
+
+MI_MATERIAL = (
+    ("tail_bar", minus_bar),
+    ("tail", fur),
+    ("cheek", cheek),
+    ("ear_root", fur),
+    ("ear", blade),
+    ("arm", foreleg),
+    ("leg", foot),
+    ("head", visage),
+    ("body", torso),
+)
+
+for bone in mun["bones"]:
+    paint = next(fn for pre, fn in MI_MATERIAL if bone["name"].startswith(pre))
+    for i, cube in enumerate(bone.get("cubes", [])):
+        u, v = cube["uv"]
+        w, h, d = (int(n) for n in cube["size"])
+        if paint is blade:
+            paint(u, v, w, h, d, i, bone["name"])
+        else:
+            paint(u, v, w, h, d, i)
+
+write_png(os.path.join(ROOT, "pikachu_RP/textures/entity/minun/minun.png"),
+          mun["description"]["texture_width"],
+          mun["description"]["texture_height"], tex)
+
+# ------------------------------------------------------------ minus_spark.png
+# Minun's bolt is white at the core and blue at the rim, the other way round
+# from Pikachu's, which is all it takes to tell two electric moves apart in
+# flight. It is minus_spark and not spark because Plusle throws a spark too,
+# and two entities cannot share an identifier.
+sp = canvas(16, 16)
+bf = paint_box(sp, 0, 0, 3, 3, 3, MIN_BOLT, top=MIN_BOLT_HI, bottom=MIN_BOLT_LO)
+for name in bf:
+    x, y, w, h = bf[name]
+    rect(sp, x, y, w, 1, MIN_BOLT_LO)
+    put(sp, x + w // 2, y + h // 2, MIN_BOLT_HI)
+write_png(os.path.join(ROOT, "pikachu_RP/textures/entity/minun/minus_spark.png"),
+          16, 16, sp)
+
+
 # ------------------------------------------------------------- pack_icon.png
 def pack_icon(path):
     ic = canvas(16, 16)
@@ -1357,6 +1757,8 @@ OCCUPANTS = {
     "squirtle": AQUA,
     "moltres": M_PINK,
     "lapras": LAP,
+    "minun": MIN_SKY,
+    "plusle": PL_RED,
 }
 
 

@@ -25,6 +25,12 @@
     },
     "pk:poke_ball_moltres": {
       "textures": "textures/items/poke_ball_moltres"
+    },
+    "pk:poke_ball_plusle": {
+      "textures": "textures/items/poke_ball_plusle"
+    },
+    "pk:poke_ball_minun": {
+      "textures": "textures/items/poke_ball_minun"
     }
   }
 }

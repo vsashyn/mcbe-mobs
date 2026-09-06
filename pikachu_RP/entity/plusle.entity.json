@@ -1,0 +1,25 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:plusle",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/plusle/plusle" },
+      "geometry": { "default": "geometry.plusle" },
+      "animations": {
+        "idle": "animation.plusle.idle",
+        "walk": "animation.plusle.walk",
+        "cheer": "animation.plusle.cheer",
+        "sit": "animation.plusle.sit",
+        "look_at_target": "animation.plusle.look_at_target",
+        "move": "controller.animation.plusle.move"
+      },
+      "scripts": {
+        "animate": ["look_at_target", "move"]
+      },
+      "particle_effects": { "spark": "minecraft:electric_spark_particle" },
+      "render_controllers": ["controller.render.plusle"],
+      "spawn_egg": { "base_color": "#f4ecb0", "overlay_color": "#bc4648" }
+    }
+  }
+}

@@ -57,6 +57,33 @@ for p, d in docs.items():
 bp_ids = {docs[p]["minecraft:entity"]["description"]["identifier"]
           for p in glob.glob(os.path.join(BP, "entities/*.json"))}
 
+# Two files claiming one identifier is the failure mode of building two mobs
+# at once: Bedrock keeps whichever it loaded last and the other mob quietly
+# borrows its model. Nothing else in this file would notice, because every
+# lookup here is by name and a name that resolves twice still resolves.
+for kind, pattern, dig in (
+        ("entity", os.path.join(BP, "entities/*.json"),
+         lambda d: [d["minecraft:entity"]["description"]["identifier"]]),
+        ("client entity", os.path.join(RP, "entity/*.json"),
+         lambda d: [d["minecraft:client_entity"]["description"]["identifier"]]),
+        ("geometry", os.path.join(RP, "models/**/*.json"),
+         lambda d: [g["description"]["identifier"]
+                    for g in d.get("minecraft:geometry", [])]),
+        ("animation", os.path.join(RP, "animations/*.json"),
+         lambda d: list(d.get("animations", {}))),
+        ("item", os.path.join(BP, "items/*.json"),
+         lambda d: [d["minecraft:item"]["description"]["identifier"]])):
+    seen = {}
+    for f in sorted(glob.glob(pattern, recursive=True)):
+        if f not in docs:
+            continue
+        for name in dig(docs[f]):
+            rel = os.path.relpath(f, ROOT)
+            if name in seen:
+                errs.append(f"{rel}: {kind} '{name}' is already defined in "
+                            f"{seen[name]}")
+            seen[name] = rel
+
 aliases = {}
 for p in glob.glob(os.path.join(RP, "entity/*.json")):
     d = docs[p]["minecraft:client_entity"]["description"]

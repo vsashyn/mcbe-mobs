@@ -1,0 +1,25 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:minun",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/minun/minun" },
+      "geometry": { "default": "geometry.minun" },
+      "animations": {
+        "idle": "animation.minun.idle",
+        "walk": "animation.minun.walk",
+        "cheer": "animation.minun.cheer",
+        "sit": "animation.minun.sit",
+        "look_at_target": "animation.minun.look_at_target",
+        "move": "controller.animation.minun.move"
+      },
+      "scripts": {
+        "animate": ["look_at_target", "move"]
+      },
+      "particle_effects": { "cheer": "minecraft:electric_spark_particle" },
+      "render_controllers": ["controller.render.minun"],
+      "spawn_egg": { "base_color": "#f3ebb8", "overlay_color": "#85bae0" }
+    }
+  }
+}

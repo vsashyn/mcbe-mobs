@@ -1,0 +1,17 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "pk:poke_ball_plusle",
+      "menu_category": { "category": "equipment" }
+    },
+    "components": {
+      "minecraft:icon": "pk:poke_ball_plusle",
+      "minecraft:display_name": { "value": "item.pk:poke_ball_plusle.name" },
+      "minecraft:max_stack_size": 1,
+      "minecraft:hand_equipped": false,
+      "minecraft:throwable": { "do_swing_animation": true },
+      "minecraft:projectile": { "projectile_entity": "pk:poke_ball_plusle_thrown" }
+    }
+  }
+}

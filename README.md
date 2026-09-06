@@ -1,7 +1,7 @@
 # Pokémon add-on for Minecraft Bedrock
 
-A Minecraft Bedrock add-on with seven custom mobs and a Poké Ball that carries
-them. Every mob is tameable, six of them fight with a custom projectile, and
+A Minecraft Bedrock add-on with nine custom mobs and a Poké Ball that carries
+them. Every mob is tameable, eight of them fight with a custom projectile, and
 all of them are built out of plain behavior and resource pack JSON with no
 scripting API and no experimental toggles.
 
@@ -14,6 +14,8 @@ scripting API and no experimental toggles.
 | Squirtle | `pk:squirtle` | 20 / 3 | 30 / 5 | Raw cod, 30% a fish | Beach, river and swamp, 1-3 |
 | Galarian Moltres | `pk:moltres` | 120 / 8 | 170 / 11 | Blaze rod or magma cream, 28% | Overworld surface above y 64, light 7 and under, alone and rare |
 | Lapras | `pk:lapras` | 50 / 4 | 80 / 6 | Prismarine crystals, 22% | Ocean near the surface, frozen ocean most often, 1-2 |
+| Plusle | `pk:plusle` | 20 / 2 | 30 / 4 | Redstone, 30% a piece | Plains and savanna, daylight, pairs and threes |
+| Minun | `pk:minun` | 20 / 2 | 28 / 3 | Glow berries, 30% a handful | Plains and savanna, daylight, groups of 1-3 |
 
 The folders, the pack names and the built `.mcaddon` still say Pikachu, from
 when it was the only mob here.
@@ -22,7 +24,7 @@ when it was the only mob here.
 
 - [Platform](#platform)
 - [Installing](#installing)
-- [Mobs](#mobs), one section each for [Pikachu](#pikachu), [Arboliva](#arboliva), [Black Rayquaza](#black-rayquaza), [Kleavor](#kleavor), [Squirtle](#squirtle), [Galarian Moltres](#galarian-moltres), [Lapras](#lapras), and the [projectiles](#projectiles) they shoot
+- [Mobs](#mobs), one section each for [Pikachu](#pikachu), [Arboliva](#arboliva), [Black Rayquaza](#black-rayquaza), [Kleavor](#kleavor), [Squirtle](#squirtle), [Galarian Moltres](#galarian-moltres), [Lapras](#lapras), [Plusle](#plusle), [Minun](#minun), and the [projectiles](#projectiles) they shoot
 - [Items](#items), covering the [Poké Ball](#poké-ball), [full balls](#full-poké-balls), [spawn eggs](#spawn-eggs), [how catching works](#how-catching-works)
 - [Repository layout](#repository-layout)
 - [Building](#building)
@@ -332,6 +334,160 @@ and takes double from fire, lava and lightning.
 
 On death it drops 0-2 prismarine shards, a couple of ice, or one packed ice.
 
+### Plusle
+
+`pk:plusle` is the plus half of a pair. It is a cream mouse the size of
+Pikachu, and three red marks carry the whole read: two long flat ears standing
+straight up, a plus in each cheek, and a plus sign on the end of its tail
+standing clear of its back.
+
+The tail is what the model is built around. A plus flush against the rump
+disappears, because the body is six units deep and the head eight, so the
+front arm of it ends up inside the mob. Leaning it back out of the way turns
+the plus into a diagonal cross, which is the one mark on Plusle nobody can
+misread, rendered wrong. So it stands upright four units behind the body and
+the crossbar's front arm runs forward into the gap under the back of the
+skull. That anchors it and costs no extra cube. The bars are two units thick
+and the crossbar three, each stepping wider than the piece it threads through,
+because a plus built as two crossed bars of one thickness has four coplanar
+faces straight down the middle of itself and z-fights there.
+
+The cheeks are three pixels square, which is not enough for the red disc with
+a pale plus inside it that the artwork has. A cream cross through a 3x3 red
+block leaves four single red pixels at the corners, and four specks is not a
+pouch. So the mark is the plus itself, drawn in red on the bare cheek. The
+same three pixels also settle where the mouth goes: the bar of each plus and
+the mouth may not share a row, or nine columns of red and dark across the
+middle of the face read as one band instead of two cheeks and a smile.
+
+Wild Plusle spawn in plains and savanna in daylight and never alone. The herd
+is two to three, because a Plusle with nobody to cheer for is missing the
+point of it. They wander, keep clear of monsters, climb, which is the line
+about shinning up telephone poles for a drink of electricity, and follow
+anyone holding redstone. Each piece has a 30% chance to tame.
+
+Plus is the ability, and it is what the entity sensor is for.
+`minecraft:entity_sensor` watches six blocks for a player or a Minun, and
+while one is in range Plusle carries `pk:plus`: `minecraft:variant` goes to 1,
+movement rises from 0.34 to 0.42, and the shooter swaps `pk:spark` for
+`pk:spark_plus`, three damage becoming six. A second subsensor, set to a count
+of exactly zero over a wider eight blocks, takes the group away again. The
+two radii are deliberate: matched, they flicker on and off every time the
+player shifts a foot at the boundary. The group also carries a twelve second
+timer that removes itself, so if a Bedrock version ever stops firing the
+zero-count sensor the buff still cannot stick.
+
+`pk:plus` and `pk:charged` below are mutually exclusive, and they have to be.
+Both carry a `minecraft:timer` to expire themselves, an entity can only hold
+one timer component, and two groups declaring one means whichever loses is
+never counted down and its group never comes off. So a lightning strike drops
+`pk:plus` on its way to adding `pk:charged`, and `pk:charged` carries the same
+`cheering` family the sensor guards on, which keeps Plus from re-arming
+underneath it.
+
+Sensing a player rather than another Plusle is not a compromise. It is the one
+subject the sensor can count without ambiguity, because a Plusle can never
+match a filter for `player` or for `minun` and so can never sense itself, and
+it puts the ability where a trainer can see it work. A Minun in range does the
+same thing, which is Plus and Minus doing what they do in the games.
+
+`minecraft:variant` is also the only part of any of this the client can read,
+which is why it is a variant and not a plain family swap. `query.variant == 1`
+is what moves the animation controller into the cheer state, arms up over the
+shoulders and electric sparks thrown off two locators sitting on the cheek
+pouches.
+
+Lightning Rod is the hidden ability and it lands here as two damage rules.
+Nothing in the `electric_move` family touches a Plusle, so Pikachu's Thunder
+Shock, Minun's Spark and another Plusle's do nothing at all. A lightning
+strike does nothing either, and instead fires `pk:charge_up`: 45 seconds of
+`pk:spark_plus` and six melee damage off a single bolt. Being an Electric type
+it takes double from falling, which is as close as this game gets to a Ground
+move.
+
+A tamed Plusle carries 30 health and 4 attack damage instead of 20 and 2,
+follows its owner, heals from redstone and glow berries, and breeds on glow
+berries or sweet berries. It also hands its owner Strength for eight seconds
+at a time inside six blocks, on a six second cooldown, which is Helping Hand.
+Minun gives Speed for the same reason; between them the pair covers both
+halves of what a cheerleader is for.
+
+Its catch rate in the games is 200, near the top of the scale, so a ball
+thrown at a wild one lands four times in five rather than the three in five
+that most of this pack runs at.
+
+On death it drops 1-3 redstone, or occasionally a copper ingot.
+
+### Minun
+
+`pk:minun` is the minus half of a pair. It is a cream mouse about the size of
+Pikachu, and three blue markings carry the whole read: two long flat ears
+standing straight up, a cheek disc each side with a minus cut across it, and a
+minus bar on the end of a stub tail. The bar runs across the mob rather than back along it,
+because a tamed Minun spends most of its time walking ahead of its owner and
+the sign has to read from behind.
+
+Each ear is a three-link chain, 2 texels wide at the skull, 4 across the
+middle and 3 at the rounded tip, standing upright and leaning 8 degrees back.
+Chaining them is what lets the ears trail behind the head instead of riding it
+rigidly, which is most of what makes the mob look light. Both ears carry no
+roll, the way Pikachu's do, and they clear each other by a unit at the widest
+link, so nothing has to hold them apart.
+
+Wild Minun spawn in plains and savanna in daylight, in groups of one to three,
+which is where the Pokedex puts them. They wander, keep well clear of
+monsters, and follow anyone holding glow berries. Each handful has a 30%
+chance to tame.
+
+It hates getting wet. `minecraft:environment_sensor` watches
+`in_water_or_rain`, and the moment either is true Minun picks up a group that
+sends it scrambling for the nearest land, then for the nearest shade, at half
+again its usual speed. It drops the group as soon as it is dry, so a Minun
+caught in the open in a shower runs for the trees and stops there. That is the
+line about hiding under the eaves, and it is the only weather behavior in the
+pack.
+
+Both triggers are guarded on a `wet` family that the group itself swaps into
+`minecraft:type_family`, which is the trick Squirtle's Torrent uses. A sensor
+tests every tick, so without the guard the wet trigger re-adds a group Minun
+already has, once a tick, for as long as it is raining.
+
+Cheering is the other half of it. The Pokedex has Minun caring more about its
+partner than about itself, so a tamed one carries `minecraft:mob_effect` and
+hands its owner Speed inside 6 blocks, 8 seconds at a time on a 5 second
+cooldown. Standing still it breaks into a cheer every 9 seconds, arms up and
+electric sparks off both paws.
+
+Spark is the attack. One bolt, 4 damage and three seconds of slowness 2 from
+up to 12 blocks, so what Minun does to something chasing its owner is pin it
+down rather than out-hit it. Its own attack damage is the lowest of any mob
+here, which is the games' stat line: Minun is built out of special attack and
+special defense, so it takes 30% off every projectile and every magic hit and
+swings for 2.
+
+Volt Absorb is a damage rule, the same shape as Lapras's Water Absorb. It
+reads an `electric_move` family off whatever hit it, and both `pk:minus_spark`
+and `pk:thunder_shock` carry it, so a Pikachu cannot land a Thunder Shock on a
+Minun and neither can another Minun land a Spark. Lightning does nothing to it
+either.
+
+Its `minecraft:type_family` is `minun` and `mob` only. Plusle also carries
+`electric`, and with it the double fall damage that stands in for a Ground
+move. Nothing in the pack filters on `electric`, so the difference shows up
+only as a Minun taking ordinary fall damage.
+
+A tamed Minun carries 28 health and 3 attack damage instead of 20 and 2, sits
+on interact, heals from glow berries and apples, and breeds with another tamed
+Minun on either of them. It follows its owner at 1.3x its walk speed, and
+unlike Plusle it cannot teleport to close the gap, so one left behind stays
+behind until it has walked the distance.
+
+Its catch rate in the games is 200, the same as Plusle's, but the ball is tuned
+harder here, and a wild Minun goes in thirteen times in twenty against Plusle's
+four in five.
+
+On death it drops 0-2 redstone, or one lapis lazuli.
+
 ### Projectiles
 
 Every projectile is a full entity with its own model, texture and flight
@@ -347,6 +503,9 @@ it.
 | Water Gun, Torrent | `pk:water_gun_torrent` | Squirtle under a third health | 6 | 3 to 13 | The same jet at 1.5x |
 | Fiery Wrath | `pk:fiery_wrath` | Galarian Moltres | 6 each | 4 to 24 | Three bolts 0.25s apart, no gravity, 3s alight |
 | Ice Beam | `pk:ice_beam` | Lapras | 5 | 4 to 16 | One shard, near-flat, no knockback, 4s slowness 2 |
+| Spark | `pk:spark` | Plusle | 3 | 3 to 12 | One plus-shaped bolt, no gravity, knockback |
+| Spark, Plus | `pk:spark_plus` | Plusle with a player or a Minun inside 6 blocks | 6 | 3 to 12 | The same bolt, faster and dead straight |
+| Spark | `pk:minus_spark` | Minun | 4 | up to 12 | One bolt, no gravity, no knockback, 3s slowness 2 |
 
 ## Items
 
@@ -367,14 +526,15 @@ white dye    white dye    white dye
 Hold one and use it the way you would a snowball. Empty balls stack to 16.
 
 A ball that hits a Pokémon either catches it or is wasted. A tamed one always
-goes in, since it is already yours. A wild one resists, and Arboliva and
-Squirtle go in three times in five, Kleavor one in two, Lapras two in five,
-Rayquaza one in five.
+goes in, since it is already yours. A wild one resists, and the odds track the
+species' catch rate in the games. Plusle goes in four times in five, Minun
+thirteen times in twenty, Arboliva and Squirtle three times in five, Kleavor
+one in two, Lapras two in five, and Galarian Moltres and Rayquaza one in five.
 A ball that misses, hits a block, or fails to hold is gone.
 
 Pikachu is the exception right now. Its `pk:on_captured` skips the roll and
 always holds, so the catch is easy to test without fighting the dice. Put the
-`randomize` back the way the other four have it to give Pikachu its odds again.
+`randomize` back the way the other eight have it to give Pikachu its odds again.
 
 ### Full Poké Balls
 
@@ -392,6 +552,8 @@ pick it up as an item, named for its occupant.
 | Poké Ball (Squirtle) | `pk:poke_ball_squirtle` | `pk:caught_squirtle` | 1 |
 | Poké Ball (Galarian Moltres) | `pk:poke_ball_moltres` | `pk:caught_moltres` | 1 |
 | Poké Ball (Lapras) | `pk:poke_ball_lapras` | `pk:caught_lapras` | 1 |
+| Poké Ball (Plusle) | `pk:poke_ball_plusle` | `pk:caught_plusle` | 1 |
+| Poké Ball (Minun) | `pk:poke_ball_minun` | `pk:caught_minun` | 1 |
 
 Throw a full ball and the Pokémon comes out a third of a second later, wherever
 the ball got to, tamed to whoever threw it.
@@ -407,7 +569,7 @@ it in the creative inventory.
 
 `pk:pikachu_spawn_egg`, `pk:arboliva_spawn_egg`, `pk:rayquaza_spawn_egg`,
 `pk:kleavor_spawn_egg`, `pk:squirtle_spawn_egg`, `pk:moltres_spawn_egg`,
-`pk:lapras_spawn_egg`.
+`pk:lapras_spawn_egg`, `pk:plusle_spawn_egg`, `pk:minun_spawn_egg`.
 
 ### How catching works
 
@@ -469,6 +631,11 @@ pikachu_BP/                           behavior pack
   entities/fiery_wrath.json           the bolt Moltres shoots, three at a time
   entities/lapras.json                stats, amphibious movement, taming, riding
   entities/ice_beam.json              the shard Lapras shoots
+  entities/plusle.json                stats, AI, taming, breeding, Plus, Lightning Rod
+  entities/spark.json                 the bolt Plusle shoots
+  entities/spark_plus.json            the same bolt at double damage, once Plus is up
+  entities/minun.json                 stats, AI, taming, breeding, rain shelter, cheering
+  entities/minus_spark.json           the bolt Minun shoots
   entities/poke_ball_thrown.json      the ball in flight; catches what it hits
   entities/poke_ball_*_thrown.json    a full ball, turns back into its mob
   entities/caught_*.json              a ball on the ground, waiting to be picked up
@@ -485,6 +652,8 @@ pikachu_RP/                           resource pack
   models/entity/squirtle.geo.json     11 bones on a 64x64 sheet, plus the jet
   models/entity/moltres.geo.json      45 bones, 51 cubes, 256x128, plus the bolt
   models/entity/lapras.geo.json       22 bones, 33 cubes, 128x128, plus the shard
+  models/entity/plusle.geo.json       13 bones, 15 cubes, 64x64, plus the spark
+  models/entity/minun.geo.json        18 bones, 20 cubes, 64x64, plus the bolt
   models/entity/poke_ball.geo.json    five cubes on a 32x32 sheet, one bone
   textures/entity/*/*.png
   animations/pikachu.animation.json   idle, quadruped run, sit, head tracking, spark
@@ -494,6 +663,8 @@ pikachu_RP/                           resource pack
   animations/squirtle.animation.json  idle, waddle, swim, withdraw, head tracking
   animations/moltres.animation.json   hover, glide, hunt, head tracking, spin
   animations/lapras.animation.json    idle, crawl, swim, rest, head tracking
+  animations/plusle.animation.json    idle, walk, cheer, sit, head tracking, crackle
+  animations/minun.animation.json     idle, walk, cheer, sit, head tracking, arc
   animations/poke_ball.animation.json spin in flight, bob at rest
   textures/items/*.png                inventory icons, 16x16
   textures/item_texture.json          maps an icon name onto its png
@@ -505,6 +676,10 @@ tools/gen_rayquaza.py                 lays out Rayquaza's 46 cubes and its wave;
 tools/gen_moltres.py                  lays out Moltres's 51 cubes and its wingbeat;
                                       run it before gen_textures.py
 tools/gen_lapras.py                   lays out Lapras's 33 cubes and shelf-packs its
+                                      UV; run it before gen_textures.py
+tools/gen_plusle.py                   lays out Plusle's 15 cubes and shelf-packs its
+                                      UV; run it before gen_textures.py
+tools/gen_minun.py                    lays out Minun's 20 cubes and shelf-packs its
                                       UV; run it before gen_textures.py
 tools/gen_textures.py                 redraws every png; edit here, not in an image editor
                                       Arboliva's is painted off its .geo.json
@@ -523,6 +698,7 @@ python3 tools/validate.py
 python3 tools/bump_version.py 1.2.0
 python3 tools/gen_textures.py
 python3 tools/gen_rayquaza.py   # run before gen_textures.py when the model moves
+python3 tools/gen_minun.py      # same for Minun
 ```
 
 Textures are generated, not painted. `gen_textures.py` redraws every `.png` in
@@ -561,6 +737,8 @@ after a run. Check that list against the mob you actually touched.
 /give @s pk:squirtle_spawn_egg
 /give @s pk:lapras_spawn_egg
 /give @s pk:moltres_spawn_egg
+/give @s pk:plusle_spawn_egg
+/give @s pk:minun_spawn_egg
 /summon pk:pikachu ~ ~ ~
 /summon pk:arboliva ~ ~ ~
 /summon pk:rayquaza ~ ~10 ~
@@ -568,6 +746,8 @@ after a run. Check that list against the mob you actually touched.
 /summon pk:squirtle ~ ~ ~
 /summon pk:lapras ~ ~ ~
 /summon pk:moltres ~ ~12 ~
+/summon pk:plusle ~ ~ ~
+/summon pk:minun ~ ~ ~
 /give @s pk:poke_ball 16
 /give @s pk:poke_ball_pikachu
 ```
@@ -578,7 +758,16 @@ so at ground level it spends its first seconds shouldering out of the terrain.
 Turn on Content Log in Settings, Creator, to see JSON errors as they happen.
 `/give @s sweet_berries 64` speeds up taming Pikachu, `/give @s bone_meal 64`
 does the same for Arboliva, `/give @s ancient_debris 16` for Rayquaza,
-`/give @s flint 64` for Kleavor and `/give @s cod 64` for Squirtle. To see the
+`/give @s flint 64` for Kleavor, `/give @s cod 64` for Squirtle and
+`/give @s glow_berries 64` for Minun. `/give @s redstone 64` tames Plusle, and
+the fastest way to see Plus is to summon one and walk up to it: inside six
+blocks it starts hopping and throwing sparks off both cheeks, and its bolts go
+from three damage to six. Walk eight blocks away and it stops. Summon a Minun
+beside it and it cheers for that instead, with no player nearby at all.
+`/summon lightning_bolt ~ ~ ~` on top of one costs it nothing and leaves it
+charged for 45 seconds. To watch Minun run for cover,
+`/weather rain` next to one standing in the open, and to see it cheer, stand
+next to a tamed one and wait nine seconds. To see the
 chop, summon a Kleavor and a zombie near each other; it goes for the zombie on
 its own.
 
@@ -876,6 +1065,82 @@ head finishes level while the neck folds under it. The paddles flatten out of
 their resting roll, and a slow `life_time` sway stays on the neck, the ears and
 the tail, so a sitting Lapras still reads as alive.
 
+### Plusle's four stances
+
+`controller.animation.plusle.move` runs idle, walk, cheer and sit. Three of
+those are the usual pair of speed and sitting tests. The fourth is
+`query.variant == 1`, which is the only way the client learns that the Plus
+ability is up, because a component group and a type family are both
+server-side and neither reaches the renderer.
+
+Idle is a bob and four slow sines that never line up: the body at 160 degrees
+a second, the head at 90, the ears at 120 and the tail yawing at 115. Sines on
+coprime-ish rates take a long time to repeat, which is what keeps a standing
+mob from looking like it is on a two second loop.
+
+Each ear tip runs the same sine as the ear below it with 55 degrees taken off
+the phase. That lag is the whole trick behind the ears: the tip is always
+finishing the motion the base started, so a two-link ear reads as one flexible
+blade rather than as two boxes hinged together.
+
+Walk is a biped, unlike Pikachu's quadruped run. The legs swing 44 degrees
+either way off `query.modified_distance_moved * 66`, the arms counter-swing 32
+on the same clock, and the body rolls 5 degrees on the half rate so the mob
+waddles once per stride rather than once per step. Every term is multiplied by
+`query.modified_move_speed`, so the whole cycle flattens to the bind pose when
+the mob stops instead of freezing mid-step.
+
+Cheer is the payoff. The arms go to 95 degrees of roll and wave another 22 at
+double the body's rate, the body hops on `math.abs(math.sin(...))` so the
+bounce only ever goes up, and the legs bend into the hop. Ninety-five is past
+horizontal on purpose: at 60 the paws sit at hip height and read as a shrug,
+and only above 90 do they clear the shoulders and read as pom-poms.
+
+The clip carries the sparks too. `particle_effects` fires
+`minecraft:electric_spark_particle` at 0.0 and 0.4 seconds of a 0.8 second
+loop, off the `cheek_left` and `cheek_right` locators, so the sparks alternate
+cheeks and come off the plus marks rather than out of the middle of the mob.
+Locators, not bone origins, because the cheeks are painted on the surface of
+the head and the head's origin is inside it.
+
+Sit drops the body 2.2, folds both legs 85 degrees forward, and lets the ears
+droop 12 with the tips going another 16. The tail comes forward 8 instead of
+back, which keeps the plus upright in the world once the body has rotated
+under it.
+
+### Minun's cheer
+
+Minun walks on two legs and never drops to four, so the walk is a plain
+alternating stride: legs on a cosine through 46 degrees, arms 34 the other
+way, and the body leaning 7 degrees nose down with the head, both hips and
+both shoulders taking that 7 straight back off the top, which is the same
+bookkeeping every mob in the pack does with its torso pitch. The stride
+constant is 38.17, the vanilla small-biped number, because this gait is a trot
+and not Pikachu's bound.
+
+The ears are where the work went. Each one is three bones, and each link lags
+the one below it by 40 degrees of phase and swings further, 9 then 12 then 14,
+so the ear arrives late and overshoots. Without the lag a 12 unit ear reads as
+a plank bolted to the skull.
+
+Watch the sign on any z rotation here. It swings the far end of a bone the way
+a pendulum swings, so a value that tips an upright ear out over the shoulder
+swings a hanging paw the other way on the same side, and getting it backwards
+crosses the ears over the skull in an X. Both Minun and Plusle were built with
+their ears splayed into a V and both now stand them upright with no roll at
+all, which sidesteps the question: the only z left on Minun is +6 on each paw,
+where an error would read as a paw tucked in rather than as a broken head, and
+a couple of degrees of mirrored sway in the idle.
+
+Cheering is its own controller state rather than a clip layered on idle,
+because it needs to interrupt. `math.mod(query.life_time, 9.0) < 1.2` puts a
+1.2 second cheer into every nine seconds and life_time is per entity, so two
+Minun standing together do not cheer in unison. The arms swing forward and up
+to 124 degrees and pump 24 either side of that, the body hops on a rectified
+sine at 420, and `minecraft:electric_spark_particle` fires at 0.1 and 0.6.
+Walking or sitting wins over the cheer, so it only ever happens standing
+still.
+
 ## Known gaps
 
 No custom sounds. Adding them means shipping `.ogg` files plus a
@@ -928,6 +1193,35 @@ full damage instead of none.
 Lapras has no Sing, no Perish Song and no Hydration. The first two need a sound
 file the pack does not ship, and Hydration needs a heal-over-time component
 Bedrock does not have.
+
+Plusle is untested in game, and Plus is the part to watch. Taking the buff off
+rests on a second `minecraft:entity_sensor` subsensor with `minimum_count` and
+`maximum_count` both at zero over eight blocks, which is the documented way to
+sense an absence but is not a shape any vanilla mob uses. The twelve second
+`minecraft:timer` in `pk:plus` is the backstop for it, so a subsensor that
+never fires costs a stuck buff for twelve seconds rather than forever. Going
+wrong the other way looks like a Plusle flickering between its two variants at
+the edge of the radius.
+
+`pk:plus` and `pk:charged` are also the one place here where two component
+groups would each want a `minecraft:timer` and an entity can hold only one.
+They are written to exclude each other for that reason, and a lightning strike
+landing in the same tick as the sensor firing is the case nothing has
+exercised.
+
+Minun is untested in game, and two of its behaviours are the ones to watch.
+Cheering is `minecraft:mob_effect`, which is documented as stable but which no
+vanilla mob uses, and its `entity_filter` has to resolve `is_owner` against the
+player who walks into range; if that filter comes back false the effect simply
+never lands, quietly. Sheltering pairs `minecraft:behavior.flee_sun` with an
+`in_water_or_rain` sensor, and flee_sun is a daylight goal in vanilla, so under
+a heavy enough sky it may not fire at all and the mob will only scramble out of
+the water. Neither failure breaks anything else; both look like a Minun that
+ignores the rain.
+
+Minus still has nobody to answer. Plusle's sensor counts a Minun in range and
+lights Plus off it, but nothing on Minun looks for a Plusle, so the pair works
+one way only. What Minun has instead is the cheer aimed at its owner.
 
 Riding Rayquaza is untested in game. `minecraft:input_air_controlled` is what
 the reference documents for three-dimensional WASD control of a mount, but no

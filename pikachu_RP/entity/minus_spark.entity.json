@@ -1,0 +1,15 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pk:minus_spark",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/minun/minus_spark" },
+      "geometry": { "default": "geometry.minus_spark" },
+      "animations": { "arc": "animation.minus_spark.arc" },
+      "scripts": { "animate": ["arc"] },
+      "particle_effects": { "arc": "minecraft:electric_spark_particle" },
+      "render_controllers": ["controller.render.minus_spark"]
+    }
+  }
+}

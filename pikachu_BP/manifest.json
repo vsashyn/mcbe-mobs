@@ -2,12 +2,12 @@
   "format_version": 2,
   "header": {
     "name": "Pokémon Behavior Pack",
-    "description": "Adds seven tameable Pokemon and the Poke Ball that carries them.",
+    "description": "Adds tameable Pokemon and the Poke Ball that carries them.",
     "uuid": "cc5ced0a-340f-4288-8ca3-746a5ac8fa36",
     "version": [
       1,
       0,
-      17
+      20
     ],
     "min_engine_version": [
       1,
@@ -22,7 +22,7 @@
       "version": [
         1,
         0,
-        17
+        20
       ]
     }
   ],
@@ -32,7 +32,7 @@
       "version": [
         1,
         0,
-        17
+        20
       ]
     }
   ]
